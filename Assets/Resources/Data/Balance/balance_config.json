@@ -1,0 +1,122 @@
+{
+  "energy": {
+    "basePerTurn": 3,
+    "max": 10
+  },
+  "draw": {
+    "basePerTurn": 5,
+    "maxHand": 10
+  },
+  "block": {
+    "resetOnTurnStart": true
+  },
+  "startDeck": {
+    "size": 8,
+    "strikeCount": 3,
+    "defendCount": 3,
+    "uniqueCount": 2
+  },
+  "classHP": {
+    "pyromancer": 75,
+    "warden": 90,
+    "chronomancer": 60
+  },
+  "masterSkillCooldown": 3,
+
+  "cardPowerBudget": {
+    "damagePerEnergy": 6,
+    "blockPerEnergy": 5,
+    "rarityMultiplier": {
+      "common": [0.8, 1.2],
+      "uncommon": [1.1, 1.7],
+      "rare": [1.5, 3.0]
+    },
+    "upgradeMultiplier": [1.25, 1.4],
+    "maxZeroCostPerClass": 2
+  },
+
+  "enemyHP": {
+    "scaling": {
+      "actMultiplier": 0.4,
+      "floorMultiplier": 0.05
+    },
+    "normalRange": {
+      "act1": [20, 35],
+      "act2": [35, 55],
+      "act3": [50, 75]
+    },
+    "eliteRange": {
+      "act1": [45, 65],
+      "act2": [65, 90],
+      "act3": [85, 120]
+    },
+    "bossHP": {
+      "act1": [80, 100],
+      "act2": [150, 180],
+      "act3": [280, 350]
+    }
+  },
+
+  "goldReward": {
+    "normal": {
+      "act1": [10, 16],
+      "act2": [14, 22],
+      "act3": [18, 28]
+    },
+    "elite": [25, 35],
+    "boss": [50, 75]
+  },
+
+  "shopPrices": {
+    "cardCommon": [50, 75],
+    "cardUncommon": [75, 125],
+    "cardRare": [150, 200],
+    "cardRemoval": 75,
+    "cardRemovalActIncrease": 25,
+    "relicCommon": 150,
+    "relicUncommon": 250,
+    "relicRare": 300,
+    "potion": [50, 75]
+  },
+
+  "potionDrop": {
+    "normalBattle": 0.4,
+    "eliteBattle": 0.6,
+    "bossBattle": 1.0,
+    "maxSlots": 3
+  },
+
+  "cardRewardRarity": {
+    "common": 0.60,
+    "uncommon": 0.30,
+    "rare": 0.10
+  },
+
+  "restSite": {
+    "healPercent": 0.30,
+    "upgradeCount": 1
+  },
+
+  "statusEffects": {
+    "thorns": {
+      "maxStack": 15,
+      "decayPerTurn": 1
+    },
+    "burn": {
+      "ignoresBlock": true,
+      "decayOnProc": 1
+    },
+    "poison": {
+      "ignoresBlock": true,
+      "decayType": "halve"
+    },
+    "weak": {
+      "damageReduction": 0.25,
+      "decayPerTurn": 1
+    },
+    "vulnerable": {
+      "damageIncrease": 0.50,
+      "decayPerTurn": 1
+    }
+  }
+}

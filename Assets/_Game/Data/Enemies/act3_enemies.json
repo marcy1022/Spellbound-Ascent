@@ -1,0 +1,100 @@
+[
+  {
+    "id": "arcane_sentinel",
+    "name": "Arcane Sentinel",
+    "nameKo": "마법 파수꾼",
+    "act": 3,
+    "type": "normal",
+    "hp": {"min": 45, "max": 55},
+    "moves": [
+      {"id": "arcane_bolt", "intent": "attack", "effects": [{"type": "damage", "value": 14}]},
+      {"id": "ward", "intent": "defend", "effects": [{"type": "block", "value": 14}]},
+      {"id": "dispel", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}, {"type": "applyVulnerable", "value": 1}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["ward", "arcane_bolt", "dispel", "arcane_bolt"], "loop": true}
+  },
+  {
+    "id": "void_wraith",
+    "name": "Void Wraith",
+    "nameKo": "공허 레이스",
+    "act": 3,
+    "type": "normal",
+    "hp": {"min": 40, "max": 48},
+    "moves": [
+      {"id": "void_touch", "intent": "attack", "effects": [{"type": "damage", "value": 11}, {"type": "applyBurn", "value": 2}]},
+      {"id": "phase_shift", "intent": "defend", "effects": [{"type": "block", "value": 18}]},
+      {"id": "drain_life", "intent": "attack", "effects": [{"type": "damage", "value": 10}, {"type": "heal", "value": 5}]}
+    ],
+    "pattern": "weighted",
+    "patternData": {"weights": [0.4, 0.25, 0.35]}
+  },
+  {
+    "id": "ember_giant",
+    "name": "Ember Giant",
+    "nameKo": "불씨 거인",
+    "act": 3,
+    "type": "normal",
+    "hp": {"min": 55, "max": 65},
+    "moves": [
+      {"id": "smash", "intent": "attack", "effects": [{"type": "damage", "value": 18}]},
+      {"id": "molten_skin", "intent": "defend", "effects": [{"type": "block", "value": 16}]},
+      {"id": "eruption", "intent": "attack", "effects": [{"type": "damage", "value": 10}, {"type": "applyBurn", "value": 3}]},
+      {"id": "quake", "intent": "attack", "effects": [{"type": "damage", "value": 7}, {"type": "applyVulnerable", "value": 2}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["molten_skin", "smash", "eruption", "quake", "smash"], "loop": true}
+  },
+  {
+    "id": "demon_mage",
+    "name": "Demon Mage",
+    "nameKo": "악마 마법사",
+    "act": 3,
+    "type": "normal",
+    "hp": {"min": 42, "max": 50},
+    "moves": [
+      {"id": "hellfire", "intent": "attack", "effects": [{"type": "damage", "value": 15}, {"type": "applyBurn", "value": 2}]},
+      {"id": "dark_shield", "intent": "defend", "effects": [{"type": "block", "value": 12}, {"type": "applyStrength", "value": 2}]},
+      {"id": "soul_rip", "intent": "attack", "effects": [{"type": "damage", "value": 8}, {"type": "multiHit", "value": 2}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["dark_shield", "hellfire", "soul_rip", "hellfire"], "loop": true}
+  },
+  {
+    "id": "chaos_hydra",
+    "name": "Chaos Hydra",
+    "nameKo": "혼돈의 히드라",
+    "act": 3,
+    "type": "elite",
+    "hp": {"min": 95, "max": 110},
+    "moves": [
+      {"id": "triple_bite", "intent": "attack", "effects": [{"type": "damage", "value": 7}, {"type": "multiHit", "value": 3}]},
+      {"id": "acid_spray", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}, {"type": "applyVulnerable", "value": 2}]},
+      {"id": "regenerate", "intent": "buff", "effects": [{"type": "heal", "value": 12}, {"type": "block", "value": 10}]},
+      {"id": "rampage", "intent": "attack", "effects": [{"type": "damage", "value": 22}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["acid_spray", "triple_bite", "rampage", "regenerate", "triple_bite"], "loop": true}
+  },
+  {
+    "id": "arch_demon",
+    "name": "Arch Demon",
+    "nameKo": "대악마",
+    "act": 3,
+    "type": "boss",
+    "hp": {"min": 160, "max": 180},
+    "moves": [
+      {"id": "infernal_slash", "intent": "attack", "effects": [{"type": "damage", "value": 20}]},
+      {"id": "demonic_aura", "intent": "buff", "effects": [{"type": "applyStrength", "value": 4}, {"type": "block", "value": 15}]},
+      {"id": "apocalypse", "intent": "attack", "effects": [{"type": "damage", "value": 30}]},
+      {"id": "hellstorm", "intent": "special", "effects": [{"type": "damage", "value": 12}, {"type": "applyBurn", "value": 3}, {"type": "applyWeak", "value": 1}]},
+      {"id": "dark_bargain", "intent": "buff", "effects": [{"type": "heal", "value": 15}, {"type": "applyStrength", "value": 2}]}
+    ],
+    "pattern": "conditional",
+    "patternData": {
+      "sequence": ["demonic_aura", "infernal_slash", "hellstorm", "infernal_slash", "dark_bargain"],
+      "loop": true,
+      "conditions": [{"type": "hpBelow", "value": 0.35, "then": "phase2"}]
+    }
+  }
+]

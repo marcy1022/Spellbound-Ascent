@@ -1,0 +1,218 @@
+[
+  {
+    "id": "mysterious_chest",
+    "name": "Mysterious Chest",
+    "nameKo": "수상한 상자",
+    "act": [1, 2, 3],
+    "text": "You find a locked chest glowing with faint light. It might contain treasure... or danger.",
+    "textKo": "희미하게 빛나는 잠긴 상자를 발견했다. 보물이 들어있을 수도... 위험이 도사리고 있을 수도 있다.",
+    "choices": [
+      {
+        "label": "Open it",
+        "labelKo": "상자를 연다",
+        "condition": null,
+        "effects": [{"type": "gainGold", "value": 30}],
+        "resultText": "Gold coins spill out! +30 Gold.",
+        "resultTextKo": "금화가 쏟아져 나왔다! +30 골드."
+      },
+      {
+        "label": "Leave it alone",
+        "labelKo": "그냥 지나친다",
+        "condition": null,
+        "effects": [],
+        "resultText": "You walk away cautiously.",
+        "resultTextKo": "조심스럽게 자리를 떠났다."
+      }
+    ]
+  },
+  {
+    "id": "hidden_spring",
+    "name": "Hidden Spring",
+    "nameKo": "숨겨진 샘",
+    "act": [1, 2, 3],
+    "text": "Crystal clear water bubbles from a hidden spring. Its gentle glow suggests healing properties.",
+    "textKo": "숨겨진 샘에서 맑은 물이 솟아오른다. 은은한 빛이 치유의 힘을 암시한다.",
+    "choices": [
+      {
+        "label": "Drink deeply",
+        "labelKo": "깊이 마신다",
+        "condition": null,
+        "effects": [{"type": "heal", "value": 20}],
+        "resultText": "The water reinvigorates you. Healed 20 HP.",
+        "resultTextKo": "샘물이 활력을 되찾아 주었다. 20 HP 회복."
+      },
+      {
+        "label": "Fill a bottle",
+        "labelKo": "병에 담는다",
+        "condition": null,
+        "effects": [{"type": "heal", "value": 8}, {"type": "gainGold", "value": 10}],
+        "resultText": "You heal a little and sell the rest. +8 HP, +10 Gold.",
+        "resultTextKo": "조금 마시고 나머지는 팔았다. +8 HP, +10 골드."
+      }
+    ]
+  },
+  {
+    "id": "dark_shrine",
+    "name": "Dark Shrine",
+    "nameKo": "어둠의 제단",
+    "act": [1, 2, 3],
+    "text": "A sinister altar radiates dark energy. You feel it could grant power... at a price.",
+    "textKo": "불길한 제단에서 어둠의 기운이 뿜어져 나온다. 대가를 치르면 힘을 얻을 수 있을 것 같다.",
+    "choices": [
+      {
+        "label": "Offer your blood",
+        "labelKo": "피를 바친다",
+        "condition": null,
+        "effects": [{"type": "damage", "value": 10}, {"type": "maxHpUp", "value": 8}],
+        "resultText": "Pain surges through you, but you feel tougher. -10 HP, +8 Max HP.",
+        "resultTextKo": "고통이 밀려오지만, 더 강인해진 느낌이다. -10 HP, +8 최대 HP."
+      },
+      {
+        "label": "Destroy the shrine",
+        "labelKo": "제단을 부순다",
+        "condition": null,
+        "effects": [{"type": "gainGold", "value": 15}],
+        "resultText": "The shrine crumbles, revealing hidden coins. +15 Gold.",
+        "resultTextKo": "제단이 무너지며 숨겨진 금화가 드러났다. +15 골드."
+      },
+      {
+        "label": "Walk away",
+        "labelKo": "그냥 떠난다",
+        "condition": null,
+        "effects": [],
+        "resultText": "Some things are better left untouched.",
+        "resultTextKo": "건드리지 않는 것이 현명한 판단이다."
+      }
+    ]
+  },
+  {
+    "id": "ancient_library",
+    "name": "Ancient Library",
+    "nameKo": "고대 도서관",
+    "act": [1, 2, 3],
+    "text": "Dusty tomes line the walls. One book glows with arcane energy that could enhance your spells.",
+    "textKo": "먼지 쌓인 책들이 벽을 가득 메우고 있다. 한 권의 책에서 마법을 강화할 수 있는 신비로운 기운이 느껴진다.",
+    "choices": [
+      {
+        "label": "Study the tome",
+        "labelKo": "책을 연구한다",
+        "condition": null,
+        "effects": [{"type": "upgradeRandom", "value": 1}],
+        "resultText": "Knowledge flows into you. A random card in your deck was upgraded!",
+        "resultTextKo": "지식이 흘러들어온다. 덱의 카드 1장이 업그레이드되었다!"
+      },
+      {
+        "label": "Sell the books",
+        "labelKo": "책을 판다",
+        "condition": null,
+        "effects": [{"type": "gainGold", "value": 20}],
+        "resultText": "The books fetch a fair price. +20 Gold.",
+        "resultTextKo": "책이 꽤 괜찮은 값에 팔렸다. +20 골드."
+      }
+    ]
+  },
+  {
+    "id": "wandering_merchant",
+    "name": "Wandering Merchant",
+    "nameKo": "떠돌이 상인",
+    "act": [1, 2, 3],
+    "text": "A cloaked merchant appears. 'I have a rare tonic that permanently strengthens the body. Only 50 gold.'",
+    "textKo": "망토를 두른 상인이 나타났다. '몸을 영구적으로 강화하는 희귀한 강장제가 있소. 50 골드면 되오.'",
+    "choices": [
+      {
+        "label": "Buy the tonic (50G)",
+        "labelKo": "강장제를 산다 (50G)",
+        "condition": {"type": "minGold", "value": 50},
+        "effects": [{"type": "loseGold", "value": 50}, {"type": "maxHpUp", "value": 12}],
+        "resultText": "Your body feels stronger! -50 Gold, +12 Max HP.",
+        "resultTextKo": "몸이 더 강해진 느낌이다! -50 골드, +12 최대 HP."
+      },
+      {
+        "label": "Decline politely",
+        "labelKo": "정중히 거절한다",
+        "condition": null,
+        "effects": [],
+        "resultText": "The merchant nods and vanishes into the shadows.",
+        "resultTextKo": "상인은 고개를 끄덕이고 어둠 속으로 사라졌다."
+      }
+    ]
+  },
+  {
+    "id": "cursed_treasure",
+    "name": "Cursed Treasure",
+    "nameKo": "저주받은 보물",
+    "act": [2, 3],
+    "text": "A pile of gold sits in the center of a glowing circle. Taking it might have consequences...",
+    "textKo": "빛나는 원 한가운데에 금화 더미가 놓여 있다. 가져가면 대가가 따를지도 모른다...",
+    "choices": [
+      {
+        "label": "Grab the gold",
+        "labelKo": "금화를 집는다",
+        "condition": null,
+        "effects": [{"type": "gainGold", "value": 50}, {"type": "maxHpDown", "value": 5}],
+        "resultText": "Gold fills your pockets, but you feel weaker. +50 Gold, -5 Max HP.",
+        "resultTextKo": "주머니가 금화로 가득 찼지만, 몸이 약해진 느낌이다. +50 골드, -5 최대 HP."
+      },
+      {
+        "label": "Leave it",
+        "labelKo": "남겨두고 간다",
+        "condition": null,
+        "effects": [{"type": "heal", "value": 10}],
+        "resultText": "Resisting temptation, you feel at peace. +10 HP.",
+        "resultTextKo": "유혹을 이겨내자 마음이 평온해졌다. +10 HP."
+      }
+    ]
+  },
+  {
+    "id": "trapped_room",
+    "name": "Trapped Room",
+    "nameKo": "함정의 방",
+    "act": [1, 2, 3],
+    "text": "Pressure plates cover the floor. You can see treasure on the other side.",
+    "textKo": "바닥에 압력판이 깔려 있다. 건너편에 보물이 보인다.",
+    "choices": [
+      {
+        "label": "Sprint across",
+        "labelKo": "달려서 건넌다",
+        "condition": null,
+        "effects": [{"type": "damage", "value": 8}, {"type": "gainGold", "value": 35}],
+        "resultText": "Darts and blades cut you, but the treasure is worth it. -8 HP, +35 Gold.",
+        "resultTextKo": "다트와 칼날에 베였지만, 보물은 그만한 가치가 있었다. -8 HP, +35 골드."
+      },
+      {
+        "label": "Turn back",
+        "labelKo": "되돌아간다",
+        "condition": null,
+        "effects": [],
+        "resultText": "Discretion is the better part of valor.",
+        "resultTextKo": "신중함이 용기보다 나은 법이다."
+      }
+    ]
+  },
+  {
+    "id": "mysterious_stranger",
+    "name": "Mysterious Stranger",
+    "nameKo": "수수께끼의 이방인",
+    "act": [1, 2, 3],
+    "text": "A hooded figure approaches. 'I can lighten your burden. Let me remove a card from your deck.'",
+    "textKo": "두건을 쓴 인물이 다가온다. '짐을 덜어드리죠. 덱에서 카드 한 장을 제거해 드리겠소.'",
+    "choices": [
+      {
+        "label": "Accept (remove worst card)",
+        "labelKo": "수락한다 (약한 카드 제거)",
+        "condition": null,
+        "effects": [{"type": "removeWeakest", "value": 1}],
+        "resultText": "The stranger takes a card and disappears. Your deck feels leaner.",
+        "resultTextKo": "이방인이 카드를 가져가고 사라졌다. 덱이 가벼워진 느낌이다."
+      },
+      {
+        "label": "Refuse",
+        "labelKo": "거절한다",
+        "condition": null,
+        "effects": [{"type": "heal", "value": 5}],
+        "resultText": "The stranger smiles and heals you slightly before leaving. +5 HP.",
+        "resultTextKo": "이방인이 미소를 지으며 약간의 치유를 해주고 떠났다. +5 HP."
+      }
+    ]
+  }
+]

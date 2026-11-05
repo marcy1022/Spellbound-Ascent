@@ -1,0 +1,109 @@
+[
+  {
+    "id": "goblin_scout",
+    "name": "Goblin Scout",
+    "nameKo": "고블린 정찰병",
+    "act": 1,
+    "type": "normal",
+    "hp": {"min": 20, "max": 26},
+    "moves": [
+      {"id": "stab", "intent": "attack", "effects": [{"type": "damage", "value": 6}]},
+      {"id": "dodge", "intent": "defend", "effects": [{"type": "block", "value": 4}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["stab", "stab", "dodge"], "loop": true}
+  },
+  {
+    "id": "goblin_warrior",
+    "name": "Goblin Warrior",
+    "nameKo": "고블린 전사",
+    "act": 1,
+    "type": "normal",
+    "hp": {"min": 24, "max": 30},
+    "moves": [
+      {"id": "slash", "intent": "attack", "effects": [{"type": "damage", "value": 8}]},
+      {"id": "rage", "intent": "buff", "effects": [{"type": "applyStrength", "value": 2}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["slash", "rage", "slash"], "loop": true}
+  },
+  {
+    "id": "fire_sprite",
+    "name": "Fire Sprite",
+    "nameKo": "불꽃 요정",
+    "act": 1,
+    "type": "normal",
+    "hp": {"min": 22, "max": 28},
+    "moves": [
+      {"id": "ember", "intent": "attack", "effects": [{"type": "damage", "value": 5}, {"type": "applyBurn", "value": 1}]},
+      {"id": "flare", "intent": "attack", "effects": [{"type": "damage", "value": 10}]}
+    ],
+    "pattern": "weighted",
+    "patternData": {"weights": [0.6, 0.4]}
+  },
+  {
+    "id": "stone_golem",
+    "name": "Stone Golem",
+    "nameKo": "석상 골렘",
+    "act": 1,
+    "type": "normal",
+    "hp": {"min": 28, "max": 35},
+    "moves": [
+      {"id": "slam", "intent": "attack", "effects": [{"type": "damage", "value": 7}]},
+      {"id": "harden", "intent": "defend", "effects": [{"type": "block", "value": 8}]},
+      {"id": "crumble", "intent": "attack", "effects": [{"type": "damage", "value": 5}, {"type": "applyVulnerable", "value": 1}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["harden", "slam", "slam", "crumble"], "loop": true}
+  },
+  {
+    "id": "shadow_thief",
+    "name": "Shadow Thief",
+    "nameKo": "그림자 도적",
+    "act": 1,
+    "type": "normal",
+    "hp": {"min": 20, "max": 24},
+    "moves": [
+      {"id": "backstab", "intent": "attack", "effects": [{"type": "damage", "value": 9}]},
+      {"id": "smoke", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 1}]},
+      {"id": "quick_slash", "intent": "attack", "effects": [{"type": "damage", "value": 5}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["smoke", "backstab", "quick_slash"], "loop": true}
+  },
+  {
+    "id": "fungal_beast",
+    "name": "Fungal Beast",
+    "nameKo": "균류 야수",
+    "act": 1,
+    "type": "elite",
+    "hp": {"min": 50, "max": 60},
+    "moves": [
+      {"id": "spore_burst", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}, {"type": "applyVulnerable", "value": 1}]},
+      {"id": "thrash", "intent": "attack", "effects": [{"type": "damage", "value": 14}]},
+      {"id": "regenerate", "intent": "buff", "effects": [{"type": "heal", "value": 6}, {"type": "block", "value": 6}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["spore_burst", "thrash", "thrash", "regenerate"], "loop": true}
+  },
+  {
+    "id": "slime_king",
+    "name": "Slime King",
+    "nameKo": "슬라임 왕",
+    "act": 1,
+    "type": "boss",
+    "hp": {"min": 85, "max": 95},
+    "moves": [
+      {"id": "slam", "intent": "attack", "effects": [{"type": "damage", "value": 15}]},
+      {"id": "ooze", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}]},
+      {"id": "split_slam", "intent": "attack", "effects": [{"type": "damage", "value": 8}, {"type": "multiHit", "value": 2}]},
+      {"id": "toxic_wave", "intent": "special", "effects": [{"type": "damage", "value": 10}, {"type": "applyBurn", "value": 3}]}
+    ],
+    "pattern": "conditional",
+    "patternData": {
+      "sequence": ["slam", "ooze", "slam", "split_slam"],
+      "loop": true,
+      "conditions": [{"type": "hpBelow", "value": 0.5, "then": "phase2"}]
+    }
+  }
+]

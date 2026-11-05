@@ -1,0 +1,115 @@
+[
+  {
+    "id": "flame_cultist",
+    "name": "Flame Cultist",
+    "nameKo": "화염 광신도",
+    "act": 2,
+    "type": "normal",
+    "hp": {"min": 32, "max": 40},
+    "moves": [
+      {"id": "fire_bolt", "intent": "attack", "effects": [{"type": "damage", "value": 9}, {"type": "applyBurn", "value": 1}]},
+      {"id": "ritual", "intent": "buff", "effects": [{"type": "applyStrength", "value": 3}]},
+      {"id": "flame_wave", "intent": "attack", "effects": [{"type": "damage", "value": 12}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["ritual", "fire_bolt", "flame_wave", "fire_bolt"], "loop": true}
+  },
+  {
+    "id": "bone_knight",
+    "name": "Bone Knight",
+    "nameKo": "뼈기사",
+    "act": 2,
+    "type": "normal",
+    "hp": {"min": 38, "max": 46},
+    "moves": [
+      {"id": "shield_bash", "intent": "attack", "effects": [{"type": "damage", "value": 10}]},
+      {"id": "fortify", "intent": "defend", "effects": [{"type": "block", "value": 12}]},
+      {"id": "cleave", "intent": "attack", "effects": [{"type": "damage", "value": 7}, {"type": "applyVulnerable", "value": 1}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["fortify", "shield_bash", "cleave", "shield_bash"], "loop": true}
+  },
+  {
+    "id": "venom_spider",
+    "name": "Venom Spider",
+    "nameKo": "독거미",
+    "act": 2,
+    "type": "normal",
+    "hp": {"min": 28, "max": 34},
+    "moves": [
+      {"id": "bite", "intent": "attack", "effects": [{"type": "damage", "value": 7}]},
+      {"id": "web", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}]},
+      {"id": "venom_spit", "intent": "attack", "effects": [{"type": "damage", "value": 5}, {"type": "applyBurn", "value": 2}]}
+    ],
+    "pattern": "weighted",
+    "patternData": {"weights": [0.35, 0.25, 0.4]}
+  },
+  {
+    "id": "crystal_golem",
+    "name": "Crystal Golem",
+    "nameKo": "수정 골렘",
+    "act": 2,
+    "type": "normal",
+    "hp": {"min": 42, "max": 52},
+    "moves": [
+      {"id": "crystal_slam", "intent": "attack", "effects": [{"type": "damage", "value": 14}]},
+      {"id": "crystal_armor", "intent": "defend", "effects": [{"type": "block", "value": 15}]},
+      {"id": "shatter", "intent": "attack", "effects": [{"type": "damage", "value": 8}, {"type": "applyVulnerable", "value": 2}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["crystal_armor", "crystal_slam", "crystal_slam", "shatter"], "loop": true}
+  },
+  {
+    "id": "shadow_assassin",
+    "name": "Shadow Assassin",
+    "nameKo": "그림자 암살자",
+    "act": 2,
+    "type": "normal",
+    "hp": {"min": 30, "max": 36},
+    "moves": [
+      {"id": "shadow_strike", "intent": "attack", "effects": [{"type": "damage", "value": 12}]},
+      {"id": "vanish", "intent": "defend", "effects": [{"type": "block", "value": 10}]},
+      {"id": "poison_blade", "intent": "attack", "effects": [{"type": "damage", "value": 8}, {"type": "applyWeak", "value": 1}]},
+      {"id": "flurry", "intent": "attack", "effects": [{"type": "damage", "value": 4}, {"type": "multiHit", "value": 3}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["vanish", "shadow_strike", "poison_blade", "flurry"], "loop": true}
+  },
+  {
+    "id": "inferno_drake",
+    "name": "Inferno Drake",
+    "nameKo": "지옥불 드레이크",
+    "act": 2,
+    "type": "elite",
+    "hp": {"min": 70, "max": 82},
+    "moves": [
+      {"id": "breath", "intent": "attack", "effects": [{"type": "damage", "value": 18}, {"type": "applyBurn", "value": 2}]},
+      {"id": "tail_swipe", "intent": "attack", "effects": [{"type": "damage", "value": 12}]},
+      {"id": "enrage", "intent": "buff", "effects": [{"type": "applyStrength", "value": 4}]},
+      {"id": "wing_gust", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}, {"type": "applyVulnerable", "value": 1}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["enrage", "breath", "tail_swipe", "wing_gust", "breath"], "loop": true}
+  },
+  {
+    "id": "lich_lord",
+    "name": "Lich Lord",
+    "nameKo": "리치 로드",
+    "act": 2,
+    "type": "boss",
+    "hp": {"min": 120, "max": 140},
+    "moves": [
+      {"id": "soul_drain", "intent": "attack", "effects": [{"type": "damage", "value": 14}, {"type": "heal", "value": 7}]},
+      {"id": "dark_pact", "intent": "buff", "effects": [{"type": "applyStrength", "value": 3}, {"type": "block", "value": 10}]},
+      {"id": "necrotic_blast", "intent": "attack", "effects": [{"type": "damage", "value": 20}]},
+      {"id": "curse_wave", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}, {"type": "applyVulnerable", "value": 2}, {"type": "applyBurn", "value": 2}]},
+      {"id": "bone_volley", "intent": "attack", "effects": [{"type": "damage", "value": 6}, {"type": "multiHit", "value": 4}]}
+    ],
+    "pattern": "conditional",
+    "patternData": {
+      "sequence": ["dark_pact", "soul_drain", "necrotic_blast", "soul_drain", "curse_wave"],
+      "loop": true,
+      "conditions": [{"type": "hpBelow", "value": 0.4, "then": "phase2"}]
+    }
+  }
+]
