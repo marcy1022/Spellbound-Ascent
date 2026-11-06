@@ -95,12 +95,21 @@ namespace SpellboundAscent.Battle
 
             if (UnityEngine.Random.Range(0f, 1f) > dropRate) return null;
 
-            return new PotionSlot
+            string rarity = RollPotionRarity(enemyType);
+            var potionData = GameManager.Instance.GetRandomPotion(rarity);
+            if (potionData == null)
+                potionData = GameManager.Instance.GetRandomPotion();
+            return potionData?.ToSlot();
+        }
+
+        string RollPotionRarity(string enemyType)
+        {
+            float roll = UnityEngine.Random.Range(0f, 1f);
+            return enemyType switch
             {
-                id = "health_potion",
-                name = "Health Potion",
-                nameKo = "체력 포션",
-                effects = new List<EffectData> { new() { type = "heal", value = 20 } }
+                "boss" => roll < 0.4f ? "rare" : roll < 0.8f ? "uncommon" : "common",
+                "elite" => roll < 0.2f ? "rare" : roll < 0.6f ? "uncommon" : "common",
+                _ => roll < 0.05f ? "rare" : roll < 0.3f ? "uncommon" : "common"
             };
         }
 

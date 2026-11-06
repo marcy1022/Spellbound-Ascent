@@ -51,21 +51,38 @@ namespace SpellboundAscent.Enemy
 
     public class EnemyInstance
     {
+        const string CcImmunePrefix = "불굴의";
+
         public EnemyData Data { get; private set; }
         public int MaxHp { get; private set; }
         public int CurrentHp { get; set; }
         public int Block { get; set; }
+        public float StatScale { get; private set; }
+        public bool CcImmune { get; private set; }
         public Dictionary<string, int> StatusEffects { get; private set; } = new();
         public int PatternIndex { get; set; }
         public string CurrentPhase { get; set; }
 
         public bool IsDead => CurrentHp <= 0;
+        public bool DeathHandled { get; set; }
         public float HpPercent => MaxHp > 0 ? (float)CurrentHp / MaxHp : 0f;
 
-        public EnemyInstance(EnemyData data)
+        public string DisplayName
+        {
+            get
+            {
+                string baseName = !string.IsNullOrEmpty(Data.nameKo) ? Data.nameKo : Data.name;
+                return CcImmune ? $"{CcImmunePrefix} {baseName}" : baseName;
+            }
+        }
+
+        public EnemyInstance(EnemyData data, float statScale = 1f, bool ccImmune = false)
         {
             Data = data;
-            MaxHp = UnityEngine.Random.Range(data.hp.min, data.hp.max + 1);
+            StatScale = statScale;
+            CcImmune = ccImmune;
+            int baseHp = UnityEngine.Random.Range(data.hp.min, data.hp.max + 1);
+            MaxHp = System.Math.Max(1, UnityEngine.Mathf.RoundToInt(baseHp * statScale));
             CurrentHp = MaxHp;
         }
 

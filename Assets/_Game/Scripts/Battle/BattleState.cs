@@ -43,6 +43,13 @@ namespace SpellboundAscent.Battle
             }
         }
 
+        public void LoseHp(int amount)
+        {
+            CurrentHp = Math.Max(0, CurrentHp - amount);
+            OnDamageTaken?.Invoke(amount);
+            OnHpChanged?.Invoke(CurrentHp);
+        }
+
         public void Heal(int amount)
         {
             CurrentHp = Math.Min(MaxHp, CurrentHp + amount);

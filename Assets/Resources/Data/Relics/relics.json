@@ -190,5 +190,113 @@
     "effects": [{"type": "damage", "value": 2}],
     "description": "Whenever you play a card, deal 2 damage to a random enemy.",
     "descriptionKo": "카드 사용 시 무작위 적에게 2 데미지."
+  },
+  {
+    "id": "breath_of_flame",
+    "name": "Breath of Flame",
+    "nameKo": "화염의 숨결",
+    "class": "pyromancer",
+    "rarity": "uncommon",
+    "trigger": "onCardPlayed",
+    "condition": null,
+    "effects": [{"type": "gainEmber", "value": 1}],
+    "description": "Whenever you play a card, gain 1 Ember.",
+    "descriptionKo": "카드 사용 시 잔불 1 획득."
+  },
+  {
+    "id": "ash_crown",
+    "name": "Ash Crown",
+    "nameKo": "잿더미의 왕관",
+    "class": "pyromancer",
+    "rarity": "rare",
+    "trigger": "onExhaust",
+    "condition": null,
+    "effects": [{"type": "applyStrength", "value": 1}],
+    "description": "Whenever a card is exhausted, gain 1 Strength.",
+    "descriptionKo": "카드 소멸 시 힘 1 획득."
+  },
+  {
+    "id": "runaway_core",
+    "name": "Runaway Core",
+    "nameKo": "폭주하는 핵",
+    "class": "pyromancer",
+    "rarity": "rare",
+    "trigger": "onTurnEnd",
+    "condition": {"type": "emberAbove", "value": 3},
+    "effects": [{"type": "damageAllEnemies", "value": 8}],
+    "description": "At end of turn, if Ember ≥ 3, deal 8 damage to ALL enemies.",
+    "descriptionKo": "턴 종료 시 잔불 3 이상이면 모든 적에게 8 데미지."
+  },
+  {
+    "id": "eternal_seed",
+    "name": "Eternal Seed",
+    "nameKo": "영원의 씨앗",
+    "class": "warden",
+    "rarity": "rare",
+    "trigger": "passive",
+    "condition": null,
+    "effects": [],
+    "description": "Growth no longer decays at end of turn.",
+    "descriptionKo": "성장이 턴 종료 시 감소하지 않음."
+  },
+  {
+    "id": "living_roots",
+    "name": "Living Roots",
+    "nameKo": "살아있는 뿌리",
+    "class": "warden",
+    "rarity": "uncommon",
+    "trigger": "turnStart",
+    "condition": null,
+    "effects": [{"type": "gainGrowth", "value": 1}],
+    "description": "At the start of each turn, gain 1 Growth.",
+    "descriptionKo": "매 턴 시작 시 성장 1 획득."
+  },
+  {
+    "id": "predator_fang",
+    "name": "Predator's Fang",
+    "nameKo": "포식자의 이빨",
+    "class": "warden",
+    "rarity": "uncommon",
+    "trigger": "onKill",
+    "condition": null,
+    "effects": [{"type": "gainGrowth", "value": 2}],
+    "description": "Whenever an enemy dies, gain 2 Growth.",
+    "descriptionKo": "적 처치 시 성장 2 획득."
+  },
+  {
+    "id": "light_pack",
+    "name": "Light Pack",
+    "nameKo": "가벼운 배낭",
+    "class": "any",
+    "rarity": "uncommon",
+    "trigger": "turnStart",
+    "condition": {"type": "deckSizeBelow", "value": 15},
+    "effects": [{"type": "draw", "value": 1}],
+    "description": "If your deck has 15 or fewer cards, draw 1 extra card each turn.",
+    "descriptionKo": "덱이 15장 이하면 매 턴 카드 1장 추가 드로우."
+  },
+  {
+    "id": "refined_core",
+    "name": "Refined Core",
+    "nameKo": "정제된 핵심",
+    "class": "any",
+    "rarity": "rare",
+    "trigger": "battleStart",
+    "condition": null,
+    "effects": [{"type": "exhaustRandom", "value": 2}, {"type": "applyStrength", "value": 2}],
+    "description": "At start of battle, exhaust 2 random cards from draw pile. Gain 2 Strength.",
+    "descriptionKo": "전투 시작 시 드로우 더미에서 무작위 2장 소멸. 힘 2 획득."
+  },
+  {
+    "id": "berserker_seal",
+    "name": "Berserker's Seal",
+    "nameKo": "광전사의 인장",
+    "class": "any",
+    "rarity": "rare",
+    "trigger": "turnStart",
+    "condition": {"type": "hpBelow", "value": 50},
+    "effects": [{"type": "applyStrength", "value": 3}],
+    "description": "At start of each turn, if HP ≤ 50%, gain 3 Strength.",
+    "descriptionKo": "매 턴 시작 시 HP 50% 이하면 힘 3 획득."
   }
 ]

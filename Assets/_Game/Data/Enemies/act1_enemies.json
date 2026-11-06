@@ -72,6 +72,51 @@
     "patternData": {"sequence": ["smoke", "backstab", "quick_slash"], "loop": true}
   },
   {
+    "id": "moss_crawler",
+    "name": "Moss Crawler",
+    "nameKo": "이끼 크롤러",
+    "act": 1,
+    "type": "normal",
+    "hp": {"min": 18, "max": 24},
+    "moves": [
+      {"id": "bite", "intent": "attack", "effects": [{"type": "damage", "value": 7}]},
+      {"id": "curl_up", "intent": "defend", "effects": [{"type": "block", "value": 6}]},
+      {"id": "spit", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 1}]}
+    ],
+    "pattern": "weighted",
+    "patternData": {"weights": [0.5, 0.25, 0.25]}
+  },
+  {
+    "id": "rust_automaton",
+    "name": "Rust Automaton",
+    "nameKo": "녹슨 자동인형",
+    "act": 1,
+    "type": "normal",
+    "hp": {"min": 26, "max": 32},
+    "moves": [
+      {"id": "gear_punch", "intent": "attack", "effects": [{"type": "damage", "value": 8}]},
+      {"id": "iron_shell", "intent": "defend", "effects": [{"type": "block", "value": 10}]},
+      {"id": "overcharge", "intent": "buff", "effects": [{"type": "applyStrength", "value": 1}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["iron_shell", "gear_punch", "overcharge", "gear_punch"], "loop": true}
+  },
+  {
+    "id": "cave_bat",
+    "name": "Cave Bat",
+    "nameKo": "동굴 박쥐",
+    "act": 1,
+    "type": "normal",
+    "hp": {"min": 14, "max": 20},
+    "moves": [
+      {"id": "screech", "intent": "debuff", "effects": [{"type": "applyVulnerable", "value": 1}]},
+      {"id": "swoop", "intent": "attack", "effects": [{"type": "damage", "value": 5}]},
+      {"id": "frenzy", "intent": "attack", "effects": [{"type": "damage", "value": 4}, {"type": "multiHit", "value": 2}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["screech", "swoop", "frenzy", "swoop"], "loop": true}
+  },
+  {
     "id": "fungal_beast",
     "name": "Fungal Beast",
     "nameKo": "균류 야수",
@@ -87,6 +132,22 @@
     "patternData": {"sequence": ["spore_burst", "thrash", "thrash", "regenerate"], "loop": true}
   },
   {
+    "id": "goblin_chieftain",
+    "name": "Goblin Chieftain",
+    "nameKo": "고블린 족장",
+    "act": 1,
+    "type": "elite",
+    "hp": {"min": 55, "max": 65},
+    "moves": [
+      {"id": "war_cry", "intent": "buff", "effects": [{"type": "applyStrength", "value": 3}, {"type": "block", "value": 5}]},
+      {"id": "heavy_slash", "intent": "attack", "effects": [{"type": "damage", "value": 12}]},
+      {"id": "rallying_blow", "intent": "attack", "effects": [{"type": "damage", "value": 9}, {"type": "applyVulnerable", "value": 1}]},
+      {"id": "shield_wall", "intent": "defend", "effects": [{"type": "block", "value": 14}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["war_cry", "heavy_slash", "rallying_blow", "shield_wall", "heavy_slash"], "loop": true}
+  },
+  {
     "id": "slime_king",
     "name": "Slime King",
     "nameKo": "슬라임 왕",
@@ -97,11 +158,33 @@
       {"id": "slam", "intent": "attack", "effects": [{"type": "damage", "value": 15}]},
       {"id": "ooze", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}]},
       {"id": "split_slam", "intent": "attack", "effects": [{"type": "damage", "value": 8}, {"type": "multiHit", "value": 2}]},
-      {"id": "toxic_wave", "intent": "special", "effects": [{"type": "damage", "value": 10}, {"type": "applyBurn", "value": 3}]}
+      {"id": "toxic_wave", "intent": "special", "effects": [{"type": "damage", "value": 10}, {"type": "applyBurn", "value": 3}]},
+      {"id": "dissolve", "intent": "special", "effects": [{"type": "purge", "value": 0}]}
     ],
     "pattern": "conditional",
     "patternData": {
-      "sequence": ["slam", "ooze", "slam", "split_slam"],
+      "sequence": ["slam", "ooze", "slam", "split_slam", "dissolve"],
+      "loop": true,
+      "conditions": [{"type": "hpBelow", "value": 0.5, "then": "phase2"}]
+    }
+  },
+  {
+    "id": "guardian_treant",
+    "name": "Guardian Treant",
+    "nameKo": "수호 나무정령",
+    "act": 1,
+    "type": "boss",
+    "hp": {"min": 100, "max": 115},
+    "moves": [
+      {"id": "root_slam", "intent": "attack", "effects": [{"type": "damage", "value": 12}]},
+      {"id": "bark_armor", "intent": "defend", "effects": [{"type": "block", "value": 16}]},
+      {"id": "vine_lash", "intent": "attack", "effects": [{"type": "damage", "value": 7}, {"type": "applyWeak", "value": 2}]},
+      {"id": "regrowth", "intent": "buff", "effects": [{"type": "heal", "value": 10}, {"type": "applyStrength", "value": 2}]},
+      {"id": "nature_purge", "intent": "special", "effects": [{"type": "purge", "value": 0}, {"type": "damage", "value": 6}]}
+    ],
+    "pattern": "conditional",
+    "patternData": {
+      "sequence": ["bark_armor", "root_slam", "vine_lash", "regrowth", "root_slam", "nature_purge"],
       "loop": true,
       "conditions": [{"type": "hpBelow", "value": 0.5, "then": "phase2"}]
     }

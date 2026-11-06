@@ -114,7 +114,10 @@ namespace SpellboundAscent.Enemy
 
         void ExecuteEffect(EffectData effect, EnemyInstance enemy, Battle.BattleState playerState, Battle.StatusEffectSystem statusSystem)
         {
-            int value = (int)effect.value;
+            bool scaleThis = effect.type == "damage" || effect.type == "block" || effect.type == "heal";
+            int value = scaleThis
+                ? System.Math.Max(1, UnityEngine.Mathf.RoundToInt(effect.value * enemy.StatScale))
+                : (int)effect.value;
             int strength = enemy.GetStatus(Utils.StatusKeys.Strength);
 
             switch (effect.type)
@@ -147,6 +150,17 @@ namespace SpellboundAscent.Enemy
 
                 case "heal":
                     enemy.Heal(value);
+                    break;
+
+                case "purge":
+                    string[] buffKeys = {
+                        Utils.StatusKeys.Strength, Utils.StatusKeys.Dexterity,
+                        Utils.StatusKeys.Growth, Utils.StatusKeys.Ember,
+                        Utils.StatusKeys.Combustion, Utils.StatusKeys.Regen,
+                        Utils.StatusKeys.Thorns
+                    };
+                    foreach (var key in buffKeys)
+                        playerState.StatusEffects.Remove(key);
                     break;
             }
         }

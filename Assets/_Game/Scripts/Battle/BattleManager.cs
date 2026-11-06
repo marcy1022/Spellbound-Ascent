@@ -24,12 +24,21 @@ namespace SpellboundAscent.Battle
         CardResolver _cardResolver;
         EnemyAI _enemyAI = new();
 
+        int _masterCooldown;
+        int _masterMaxCooldown;
+
         public event Action OnBattleStarted;
         public event Action<BattlePhase> OnPhaseChanged;
         public event Action<CardInstance> OnCardPlayed;
         public event Action<EnemyInstance, MoveData> OnEnemyActed;
         public event Action<bool> OnBattleEnded;
         public event Action<EnemyInstance> OnEnemyDied;
+        public event Action<EnemyInstance> OnCcImmune;
+        public event Action OnMasterSkillUsed;
+
+        public int MasterCooldown => _masterCooldown;
+        public int MasterMaxCooldown => _masterMaxCooldown;
+        public bool CanUseMasterSkill => _masterCooldown <= 0 && Phase == BattlePhase.PlayerTurn;
 
         void Awake()
         {
@@ -41,7 +50,7 @@ namespace SpellboundAscent.Battle
             Instance = this;
         }
 
-        public void StartBattle(List<EnemyData> enemyDatas)
+        public void StartBattle(List<EnemyData> enemyDatas, List<float> statScales = null, List<bool> ccImmunes = null)
         {
             var run = GameManager.Instance.CurrentRun;
             var balance = GameManager.Instance.Balance;
@@ -51,15 +60,21 @@ namespace SpellboundAscent.Battle
             Deck = new DeckManager(balance.draw.maxHand);
             Deck.InitFromDeck(new List<CardInstance>(run.deck));
 
-            _cardResolver = new CardResolver(_statusSystem, PlayerState.StatusEffects);
+            _cardResolver = new CardResolver(_statusSystem, PlayerState.StatusEffects, PlayerState);
             WireCardResolverEvents();
 
             Enemies.Clear();
-            foreach (var data in enemyDatas)
-                Enemies.Add(new EnemyInstance(data));
+            for (int i = 0; i < enemyDatas.Count; i++)
+            {
+                float scale = statScales != null && i < statScales.Count ? statScales[i] : 1f;
+                bool ccImm = ccImmunes != null && i < ccImmunes.Count && ccImmunes[i];
+                Enemies.Add(new EnemyInstance(enemyDatas[i], scale, ccImm));
+            }
 
             TurnNumber = 0;
             Phase = BattlePhase.NotStarted;
+            _masterMaxCooldown = GameManager.Instance.Balance.masterSkillCooldown;
+            _masterCooldown = 0;
 
             TriggerRelics("battleStart");
             OnBattleStarted?.Invoke();
@@ -77,17 +92,17 @@ namespace SpellboundAscent.Battle
 
             PlayerState.ResetEnergy();
 
-            _statusSystem.TickTurnStart(PlayerState.StatusEffects, "Player", null);
+            _statusSystem.TickTurnStart(PlayerState.StatusEffects, "Player", null, heal =>
+            {
+                PlayerState.Heal(heal);
+                GameManager.Instance.CurrentRun.currentHp = PlayerState.CurrentHp;
+            });
 
             int extraDraw = _statusSystem.GetStatus(PlayerState.StatusEffects, StatusKeys.Haste);
             int drawCount = GameManager.Instance.Balance.draw.basePerTurn + extraDraw;
             Deck.DrawCards(drawCount);
 
-            foreach (var enemy in Enemies)
-            {
-                if (!enemy.IsDead)
-                    enemy.Block = 0;
-            }
+            if (_masterCooldown > 0) _masterCooldown--;
 
             TriggerRelics("turnStart");
 
@@ -112,6 +127,9 @@ namespace SpellboundAscent.Battle
             OnCardPlayed?.Invoke(card);
             TriggerRelics("onCardPlayed");
 
+            if (card.Data.exhaust || card.Data.type == "power")
+                TriggerRelics("onExhaust");
+
             CheckEnemyDeaths();
             if (CheckBattleEnd()) return true;
 
@@ -122,10 +140,32 @@ namespace SpellboundAscent.Battle
         {
             if (Phase != BattlePhase.PlayerTurn) return;
 
+            int growth = _statusSystem.GetStatus(PlayerState.StatusEffects, StatusKeys.Growth);
+            if (growth > 0)
+                PlayerState.AddBlock(growth);
+
+            int combustion = _statusSystem.GetStatus(PlayerState.StatusEffects, StatusKeys.Combustion);
+            if (combustion > 0)
+            {
+                int ember = _statusSystem.GetStatus(PlayerState.StatusEffects, StatusKeys.Ember);
+                if (ember > 0)
+                {
+                    foreach (var enemy in Enemies)
+                    {
+                        if (!enemy.IsDead)
+                            enemy.TakeDamage(ember * combustion);
+                    }
+                    CheckEnemyDeaths();
+                    if (CheckBattleEnd()) return;
+                }
+            }
+
+            TriggerRelics("onTurnEnd");
+
             _statusSystem.TickTurnEnd(PlayerState.StatusEffects, "Player", dmg =>
             {
                 PlayerState.TakeDamage(dmg);
-            });
+            }, HasRelic("eternal_seed"));
 
             if (CheckPlayerDeath()) return;
 
@@ -141,6 +181,7 @@ namespace SpellboundAscent.Battle
             {
                 if (enemy.IsDead) continue;
 
+                enemy.Block = 0;
                 _statusSystem.TickTurnStart(enemy.StatusEffects, enemy.Data.name, null);
 
                 var move = _enemyAI.GetNextMove(enemy);
@@ -167,8 +208,9 @@ namespace SpellboundAscent.Battle
         {
             foreach (var enemy in Enemies)
             {
-                if (enemy.IsDead)
+                if (enemy.IsDead && !enemy.DeathHandled)
                 {
+                    enemy.DeathHandled = true;
                     OnEnemyDied?.Invoke(enemy);
                     TriggerRelics("onKill");
                 }
@@ -232,34 +274,104 @@ namespace SpellboundAscent.Battle
             return card.Data.targetType == "single";
         }
 
+        bool HasRelic(string relicId)
+        {
+            foreach (var r in GameManager.Instance.CurrentRun.relics)
+                if (r.id == relicId) return true;
+            return false;
+        }
+
         void TriggerRelics(string trigger)
         {
             var run = GameManager.Instance.CurrentRun;
             foreach (var relic in run.relics)
             {
                 if (relic.trigger != trigger) continue;
+                if (!CheckRelicCondition(relic)) continue;
 
                 foreach (var effect in relic.effects)
                 {
+                    int value = (int)effect.value;
                     switch (effect.type)
                     {
                         case "block":
-                            PlayerState.AddBlock((int)effect.value);
+                            PlayerState.AddBlock(value);
                             break;
                         case "draw":
-                            Deck.DrawCards((int)effect.value);
+                            Deck.DrawCards(value);
                             break;
                         case "energy":
-                            PlayerState.AddEnergy((int)effect.value);
+                            PlayerState.AddEnergy(value);
                             break;
                         case "heal":
-                            run.Heal((int)effect.value);
+                            run.Heal(value);
                             break;
                         case "applyStrength":
-                            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Strength, (int)effect.value, "Player");
+                            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Strength, value, "Player");
+                            break;
+                        case "applyDexterity":
+                            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Dexterity, value, "Player");
+                            break;
+                        case "applyThorns":
+                            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Thorns, value, "Player");
+                            break;
+                        case "gainEmber":
+                            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Ember, value, "Player");
+                            break;
+                        case "gainGrowth":
+                            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Growth, value, "Player");
+                            break;
+                        case "applyRegen":
+                            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Regen, value, "Player");
+                            break;
+                        case "damageAllEnemies":
+                            foreach (var enemy in Enemies)
+                            {
+                                if (!enemy.IsDead) enemy.TakeDamage(value);
+                            }
+                            CheckEnemyDeaths();
+                            break;
+                        case "exhaustRandom":
+                            for (int i = 0; i < value && Deck.DrawPile.Count > 0; i++)
+                            {
+                                int idx = UnityEngine.Random.Range(0, Deck.DrawPile.Count);
+                                var card = Deck.DrawPile[idx];
+                                Deck.DrawPile.RemoveAt(idx);
+                                Deck.ExhaustPile.Add(card);
+                            }
+                            break;
+                        case "damage":
+                            if (Enemies.Count > 0)
+                            {
+                                var alive = Enemies.FindAll(e => !e.IsDead);
+                                if (alive.Count > 0)
+                                {
+                                    var target = alive[UnityEngine.Random.Range(0, alive.Count)];
+                                    target.TakeDamage(value);
+                                    CheckEnemyDeaths();
+                                }
+                            }
                             break;
                     }
                 }
+            }
+        }
+
+        bool CheckRelicCondition(Relic.RelicData relic)
+        {
+            if (relic.condition == null || string.IsNullOrEmpty(relic.condition.type))
+                return true;
+
+            switch (relic.condition.type)
+            {
+                case "deckSizeBelow":
+                    return GameManager.Instance.CurrentRun.deck.Count <= (int)relic.condition.value;
+                case "hpBelow":
+                    return PlayerState.CurrentHp <= PlayerState.MaxHp * relic.condition.value / 100f;
+                case "emberAbove":
+                    return _statusSystem.GetStatus(PlayerState.StatusEffects, StatusKeys.Ember) >= (int)relic.condition.value;
+                default:
+                    return true;
             }
         }
 
@@ -295,6 +407,29 @@ namespace SpellboundAscent.Battle
                     case "applyStrength":
                         _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Strength, value, "Player");
                         break;
+                    case "applyDexterity":
+                        _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Dexterity, value, "Player");
+                        break;
+                    case "applyRegen":
+                        _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Regen, value, "Player");
+                        break;
+                    case "draw":
+                        Deck.DrawCards(value);
+                        break;
+                    case "energy":
+                        PlayerState.AddEnergy(value);
+                        break;
+                    case "applyPoison":
+                        foreach (var enemy in Enemies)
+                        {
+                            if (!enemy.IsDead)
+                                _statusSystem.ApplyStatus(enemy.StatusEffects, StatusKeys.Poison, value, enemy.DisplayName);
+                        }
+                        break;
+                    case "healFull":
+                        PlayerState.Heal(PlayerState.MaxHp);
+                        run.currentHp = PlayerState.CurrentHp;
+                        break;
                 }
             }
 
@@ -303,10 +438,118 @@ namespace SpellboundAscent.Battle
             return true;
         }
 
+        public bool UseMasterSkill()
+        {
+            if (!CanUseMasterSkill) return false;
+
+            string playerClass = GameManager.Instance.CurrentRun.playerClass;
+            switch (playerClass)
+            {
+                case "pyromancer":
+                    ExecutePyromancerMaster();
+                    break;
+                case "warden":
+                    ExecuteWardenMaster();
+                    break;
+                case "chronomancer":
+                    ExecuteChronomancerMaster();
+                    break;
+                case "necromancer":
+                    ExecuteNecromancerMaster();
+                    break;
+                default:
+                    return false;
+            }
+
+            _masterCooldown = _masterMaxCooldown;
+            OnMasterSkillUsed?.Invoke();
+            CheckEnemyDeaths();
+            CheckBattleEnd();
+            return true;
+        }
+
+        void ExecutePyromancerMaster()
+        {
+            int ember = _statusSystem.GetStatus(PlayerState.StatusEffects, StatusKeys.Ember);
+            if (ember > 0)
+            {
+                int dmg = ember * 2;
+                foreach (var enemy in Enemies)
+                {
+                    if (!enemy.IsDead)
+                        enemy.TakeDamage(dmg);
+                }
+                PlayerState.StatusEffects.Remove(StatusKeys.Ember);
+            }
+        }
+
+        void ExecuteWardenMaster()
+        {
+            int currentBlock = PlayerState.Block;
+            PlayerState.AddBlock(currentBlock);
+            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Haste, 1, "Player");
+        }
+
+        void ExecuteChronomancerMaster()
+        {
+            if (Deck.DiscardPile.Count > 0)
+            {
+                int idx = Deck.DiscardPile.Count - 1;
+                var card = Deck.DiscardPile[idx];
+                Deck.DiscardPile.RemoveAt(idx);
+                Deck.Hand.Add(card);
+            }
+            PlayerState.AddEnergy(1);
+        }
+
+        void ExecuteNecromancerMaster()
+        {
+            int totalPoison = 0;
+            foreach (var enemy in Enemies)
+            {
+                if (!enemy.IsDead)
+                {
+                    int poison = _statusSystem.GetStatus(enemy.StatusEffects, StatusKeys.Poison);
+                    totalPoison += poison;
+                }
+            }
+            int heal = System.Math.Max(1, totalPoison / 2);
+            PlayerState.Heal(heal);
+            GameManager.Instance.CurrentRun.currentHp = PlayerState.CurrentHp;
+            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Strength, 1, "Player");
+        }
+
+        public string GetMasterSkillName()
+        {
+            string playerClass = GameManager.Instance.CurrentRun.playerClass;
+            return playerClass switch
+            {
+                "pyromancer" => "점화",
+                "warden" => "철벽",
+                "chronomancer" => "되감기",
+                "necromancer" => "영혼 수확",
+                _ => "스킬"
+            };
+        }
+
+        public string GetMasterSkillDesc()
+        {
+            string playerClass = GameManager.Instance.CurrentRun.playerClass;
+            return playerClass switch
+            {
+                "pyromancer" => "잔불 전부 소비, 잔불×2 전체 데미지",
+                "warden" => "현재 블록 2배, 신속 1 획득",
+                "chronomancer" => "마지막 사용 카드 핸드로 복귀, 에너지 +1",
+                "necromancer" => "적 독 합계의 절반만큼 회복, 힘 +1",
+                _ => ""
+            };
+        }
+
         void WireCardResolverEvents()
         {
             _cardResolver.OnBlockGained += amount => PlayerState.AddBlock(amount);
             _cardResolver.OnEnergyGained += amount => PlayerState.AddEnergy(amount);
+            _cardResolver.OnCcImmune += enemy => OnCcImmune?.Invoke(enemy);
         }
     }
 }

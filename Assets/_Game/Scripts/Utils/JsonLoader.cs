@@ -57,9 +57,19 @@ namespace SpellboundAscent.Utils
             return wrapper?.items ?? new List<Event.EventData>();
         }
 
+        public static List<Core.PotionData> LoadPotions()
+        {
+            var textAsset = Resources.Load<TextAsset>("Data/Potions/potions");
+            if (textAsset == null) return new List<Core.PotionData>();
+            string wrapped = "{\"items\":" + textAsset.text + "}";
+            var wrapper = JsonUtility.FromJson<PotionListWrapper>(wrapped);
+            return wrapper?.items ?? new List<Core.PotionData>();
+        }
+
         [System.Serializable] class CardListWrapper { public List<Card.CardData> items; }
         [System.Serializable] class EnemyListWrapper { public List<Enemy.EnemyData> items; }
         [System.Serializable] class RelicListWrapper { public List<Relic.RelicData> items; }
         [System.Serializable] class EventListWrapper { public List<Event.EventData> items; }
+        [System.Serializable] class PotionListWrapper { public List<Core.PotionData> items; }
     }
 }

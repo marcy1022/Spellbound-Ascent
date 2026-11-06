@@ -1,0 +1,92 @@
+[
+  {
+    "id": "health_potion",
+    "name": "Health Potion",
+    "nameKo": "체력 포션",
+    "rarity": "common",
+    "description": "Heal 30 HP.",
+    "descriptionKo": "HP 30 회복.",
+    "effects": [{"type": "heal", "value": 30}]
+  },
+  {
+    "id": "block_potion",
+    "name": "Block Potion",
+    "nameKo": "방어 포션",
+    "rarity": "common",
+    "description": "Gain 12 Block.",
+    "descriptionKo": "블록 12 획득.",
+    "effects": [{"type": "block", "value": 12}]
+  },
+  {
+    "id": "fire_potion",
+    "name": "Fire Potion",
+    "nameKo": "화염 포션",
+    "rarity": "common",
+    "description": "Deal 20 damage to ALL enemies.",
+    "descriptionKo": "적 전체에 20 데미지.",
+    "effects": [{"type": "damage", "value": 20}]
+  },
+  {
+    "id": "strength_potion",
+    "name": "Strength Potion",
+    "nameKo": "힘 포션",
+    "rarity": "uncommon",
+    "description": "Gain 2 Strength.",
+    "descriptionKo": "힘 2 획득.",
+    "effects": [{"type": "applyStrength", "value": 2}]
+  },
+  {
+    "id": "dexterity_potion",
+    "name": "Dexterity Potion",
+    "nameKo": "민첩 포션",
+    "rarity": "uncommon",
+    "description": "Gain 2 Dexterity.",
+    "descriptionKo": "민첩 2 획득.",
+    "effects": [{"type": "applyDexterity", "value": 2}]
+  },
+  {
+    "id": "speed_potion",
+    "name": "Speed Potion",
+    "nameKo": "속도 포션",
+    "rarity": "uncommon",
+    "description": "Draw 3 cards.",
+    "descriptionKo": "카드 3장 드로우.",
+    "effects": [{"type": "draw", "value": 3}]
+  },
+  {
+    "id": "energy_potion",
+    "name": "Energy Potion",
+    "nameKo": "에너지 포션",
+    "rarity": "uncommon",
+    "description": "Gain 2 Energy.",
+    "descriptionKo": "에너지 2 획득.",
+    "effects": [{"type": "energy", "value": 2}]
+  },
+  {
+    "id": "poison_potion",
+    "name": "Poison Potion",
+    "nameKo": "독 포션",
+    "rarity": "uncommon",
+    "description": "Apply 6 Poison to ALL enemies.",
+    "descriptionKo": "적 전체에 독 6 부여.",
+    "effects": [{"type": "applyPoison", "value": 6}]
+  },
+  {
+    "id": "regen_potion",
+    "name": "Regen Potion",
+    "nameKo": "재생 포션",
+    "rarity": "rare",
+    "description": "Gain 5 Regen.",
+    "descriptionKo": "재생 5 획득.",
+    "effects": [{"type": "applyRegen", "value": 5}]
+  },
+  {
+    "id": "elixir",
+    "name": "Elixir of Life",
+    "nameKo": "생명의 영약",
+    "rarity": "rare",
+    "description": "Heal to full HP.",
+    "descriptionKo": "HP를 최대치까지 회복.",
+    "effects": [{"type": "healFull", "value": 1}]
+  }
+]

@@ -29,6 +29,15 @@ namespace SpellboundAscent.Utils
         public const string Dexterity = "dexterity";
         public const string Thorns = "thorns";
         public const string Haste = "haste";
+
+        // Pyromancer
+        public const string Ember = "ember";
+        public const string Combustion = "combustion";
+
+        // Warden
+        public const string Growth = "growth";
+        public const string Regen = "regen";
+        public const string Root = "root";
     }
 
     public static class IntentType

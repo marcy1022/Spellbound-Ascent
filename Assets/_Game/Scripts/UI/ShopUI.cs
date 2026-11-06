@@ -213,12 +213,17 @@ namespace SpellboundAscent.UI
             int potionPrice = UnityEngine.Random.Range(
                 balance.shopPrices.potion[0], balance.shopPrices.potion[1] + 1);
 
+            var shopPotion = GameManager.Instance.GetRandomPotion();
+
             var potRT = MakeRect(_root, "Potion",
                 new Vector2(0.52f, 0.32f), new Vector2(0.95f, 0.44f), Vector2.zero, Vector2.zero);
             var potImg = potRT.gameObject.AddComponent<Image>();
             potImg.color = new Color(0.15f, 0.35f, 0.15f, 0.9f);
 
-            MakeTMP(potRT, "Label", "체력 포션",
+            string potLabel = shopPotion != null
+                ? (!string.IsNullOrEmpty(shopPotion.nameKo) ? shopPotion.nameKo : shopPotion.name)
+                : "포션";
+            MakeTMP(potRT, "Label", potLabel,
                 new Vector2(0.05f, 0.4f), new Vector2(0.95f, 0.9f), 22, Color.white);
 
             var potPriceT = MakeTMP(potRT, "Price", $"{potionPrice}G",
@@ -229,7 +234,8 @@ namespace SpellboundAscent.UI
             potBtn.targetGraphic = potImg;
             int potIdx = _items.Count;
             int capturedPotPrice = potionPrice;
-            potBtn.onClick.AddListener(() => BuyPotion(potIdx, capturedPotPrice));
+            var capturedPotion = shopPotion;
+            potBtn.onClick.AddListener(() => BuyPotion(potIdx, capturedPotPrice, capturedPotion));
 
             _items.Add(new ShopItem
             {
@@ -279,7 +285,7 @@ namespace SpellboundAscent.UI
             });
         }
 
-        void BuyPotion(int itemIdx, int price)
+        void BuyPotion(int itemIdx, int price, PotionData potionData)
         {
             var item = _items[itemIdx];
             if (item.sold) return;
@@ -287,7 +293,7 @@ namespace SpellboundAscent.UI
             var run = GameManager.Instance.CurrentRun;
             if (!run.SpendGold(price)) return;
 
-            var potion = new PotionSlot
+            var potion = potionData?.ToSlot() ?? new PotionSlot
             {
                 id = "health_potion",
                 name = "Health Potion",

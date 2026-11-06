@@ -61,6 +61,67 @@
     "patternData": {"sequence": ["dark_shield", "hellfire", "soul_rip", "hellfire"], "loop": true}
   },
   {
+    "id": "spire_guardian",
+    "name": "Spire Guardian",
+    "nameKo": "첨탑 수호자",
+    "act": 3,
+    "type": "normal",
+    "hp": {"min": 50, "max": 60},
+    "moves": [
+      {"id": "spear_thrust", "intent": "attack", "effects": [{"type": "damage", "value": 16}]},
+      {"id": "tower_shield", "intent": "defend", "effects": [{"type": "block", "value": 20}]},
+      {"id": "rallying_cry", "intent": "buff", "effects": [{"type": "applyStrength", "value": 3}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["tower_shield", "spear_thrust", "rallying_cry", "spear_thrust"], "loop": true}
+  },
+  {
+    "id": "soul_eater",
+    "name": "Soul Eater",
+    "nameKo": "영혼 포식자",
+    "act": 3,
+    "type": "normal",
+    "hp": {"min": 38, "max": 46},
+    "moves": [
+      {"id": "devour", "intent": "attack", "effects": [{"type": "damage", "value": 12}, {"type": "heal", "value": 6}]},
+      {"id": "terror", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}, {"type": "applyVulnerable", "value": 1}]},
+      {"id": "shadow_claw", "intent": "attack", "effects": [{"type": "damage", "value": 14}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["terror", "devour", "shadow_claw", "devour"], "loop": true}
+  },
+  {
+    "id": "infernal_imp",
+    "name": "Infernal Imp",
+    "nameKo": "지옥 임프",
+    "act": 3,
+    "type": "normal",
+    "hp": {"min": 30, "max": 38},
+    "moves": [
+      {"id": "fire_bolt", "intent": "attack", "effects": [{"type": "damage", "value": 10}, {"type": "applyBurn", "value": 1}]},
+      {"id": "imp_dance", "intent": "defend", "effects": [{"type": "block", "value": 8}]},
+      {"id": "chaos_bolt", "intent": "attack", "effects": [{"type": "damage", "value": 6}, {"type": "multiHit", "value": 2}]}
+    ],
+    "pattern": "weighted",
+    "patternData": {"weights": [0.4, 0.2, 0.4]}
+  },
+  {
+    "id": "doom_knight",
+    "name": "Doom Knight",
+    "nameKo": "파멸의 기사",
+    "act": 3,
+    "type": "normal",
+    "hp": {"min": 52, "max": 62},
+    "moves": [
+      {"id": "doom_blade", "intent": "attack", "effects": [{"type": "damage", "value": 18}]},
+      {"id": "dark_armor", "intent": "defend", "effects": [{"type": "block", "value": 16}, {"type": "applyStrength", "value": 1}]},
+      {"id": "execute", "intent": "attack", "effects": [{"type": "damage", "value": 24}]},
+      {"id": "death_mark", "intent": "debuff", "effects": [{"type": "applyVulnerable", "value": 2}, {"type": "applyBurn", "value": 2}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["dark_armor", "doom_blade", "death_mark", "execute", "doom_blade"], "loop": true}
+  },
+  {
     "id": "chaos_hydra",
     "name": "Chaos Hydra",
     "nameKo": "혼돈의 히드라",
@@ -77,6 +138,22 @@
     "patternData": {"sequence": ["acid_spray", "triple_bite", "rampage", "regenerate", "triple_bite"], "loop": true}
   },
   {
+    "id": "fallen_seraph",
+    "name": "Fallen Seraph",
+    "nameKo": "타락 천사",
+    "act": 3,
+    "type": "elite",
+    "hp": {"min": 100, "max": 115},
+    "moves": [
+      {"id": "divine_smite", "intent": "attack", "effects": [{"type": "damage", "value": 20}]},
+      {"id": "holy_barrier", "intent": "defend", "effects": [{"type": "block", "value": 18}, {"type": "heal", "value": 6}]},
+      {"id": "fallen_grace", "intent": "buff", "effects": [{"type": "applyStrength", "value": 4}]},
+      {"id": "corruption_wave", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}, {"type": "applyBurn", "value": 3}]}
+    ],
+    "pattern": "sequence",
+    "patternData": {"sequence": ["fallen_grace", "divine_smite", "corruption_wave", "holy_barrier", "divine_smite"], "loop": true}
+  },
+  {
     "id": "arch_demon",
     "name": "Arch Demon",
     "nameKo": "대악마",
@@ -88,13 +165,36 @@
       {"id": "demonic_aura", "intent": "buff", "effects": [{"type": "applyStrength", "value": 4}, {"type": "block", "value": 15}]},
       {"id": "apocalypse", "intent": "attack", "effects": [{"type": "damage", "value": 30}]},
       {"id": "hellstorm", "intent": "special", "effects": [{"type": "damage", "value": 12}, {"type": "applyBurn", "value": 3}, {"type": "applyWeak", "value": 1}]},
-      {"id": "dark_bargain", "intent": "buff", "effects": [{"type": "heal", "value": 15}, {"type": "applyStrength", "value": 2}]}
+      {"id": "dark_bargain", "intent": "buff", "effects": [{"type": "heal", "value": 15}, {"type": "applyStrength", "value": 2}]},
+      {"id": "soul_crush", "intent": "special", "effects": [{"type": "purge", "value": 0}, {"type": "damage", "value": 12}]}
     ],
     "pattern": "conditional",
     "patternData": {
-      "sequence": ["demonic_aura", "infernal_slash", "hellstorm", "infernal_slash", "dark_bargain"],
+      "sequence": ["demonic_aura", "infernal_slash", "hellstorm", "soul_crush", "infernal_slash", "dark_bargain"],
       "loop": true,
       "conditions": [{"type": "hpBelow", "value": 0.35, "then": "phase2"}]
+    }
+  },
+  {
+    "id": "void_sovereign",
+    "name": "Void Sovereign",
+    "nameKo": "공허의 군주",
+    "act": 3,
+    "type": "boss",
+    "hp": {"min": 175, "max": 200},
+    "moves": [
+      {"id": "void_blast", "intent": "attack", "effects": [{"type": "damage", "value": 18}]},
+      {"id": "dimensional_rift", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}, {"type": "applyVulnerable", "value": 2}]},
+      {"id": "entropy_shield", "intent": "defend", "effects": [{"type": "block", "value": 22}, {"type": "applyStrength", "value": 3}]},
+      {"id": "annihilate", "intent": "attack", "effects": [{"type": "damage", "value": 8}, {"type": "multiHit", "value": 4}]},
+      {"id": "reality_tear", "intent": "buff", "effects": [{"type": "applyStrength", "value": 5}, {"type": "heal", "value": 10}]},
+      {"id": "void_collapse", "intent": "special", "effects": [{"type": "purge", "value": 0}, {"type": "damage", "value": 15}]}
+    ],
+    "pattern": "conditional",
+    "patternData": {
+      "sequence": ["entropy_shield", "void_blast", "dimensional_rift", "annihilate", "void_collapse", "reality_tear"],
+      "loop": true,
+      "conditions": [{"type": "hpBelow", "value": 0.4, "then": "phase2"}]
     }
   }
 ]

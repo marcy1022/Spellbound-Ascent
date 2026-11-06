@@ -201,20 +201,31 @@ namespace SpellboundAscent.UI
                 new Color(0.7f, 0.7f, 0.7f));
             _selectionLabel.alignment = TextAlignmentOptions.Center;
 
+            // Deck view button
+            var deckRT = MakeRect(_root, "DeckBtn",
+                new Vector2(0.05f, 0.04f), new Vector2(0.25f, 0.13f), Vector2.zero, Vector2.zero);
+            var deckImg = deckRT.gameObject.AddComponent<Image>();
+            deckImg.color = new Color(0.2f, 0.2f, 0.35f, 0.9f);
+            var deckBtn = deckRT.gameObject.AddComponent<Button>();
+            deckBtn.targetGraphic = deckImg;
+            deckBtn.onClick.AddListener(ShowDeckOverlay);
+            MakeTMP(deckRT, "Txt", "덱",
+                Vector2.zero, Vector2.one, 24, new Color(0.7f, 0.8f, 1f)).alignment = TextAlignmentOptions.Center;
+
             // Skip button
             var skipRT = MakeRect(_root, "Skip",
-                new Vector2(0.05f, 0.04f), new Vector2(0.35f, 0.13f), Vector2.zero, Vector2.zero);
+                new Vector2(0.27f, 0.04f), new Vector2(0.48f, 0.13f), Vector2.zero, Vector2.zero);
             var skipImg = skipRT.gameObject.AddComponent<Image>();
             skipImg.color = new Color(0.35f, 0.25f, 0.25f, 0.9f);
             var skipBtn = skipRT.gameObject.AddComponent<Button>();
             skipBtn.targetGraphic = skipImg;
             skipBtn.onClick.AddListener(OnSkipClicked);
             MakeTMP(skipRT, "Txt", "건너뛰기",
-                Vector2.zero, Vector2.one, 26, Color.white).alignment = TextAlignmentOptions.Center;
+                Vector2.zero, Vector2.one, 24, Color.white).alignment = TextAlignmentOptions.Center;
 
             // Confirm button
             var confirmRT = MakeRect(_root, "Confirm",
-                new Vector2(0.4f, 0.04f), new Vector2(0.95f, 0.13f), Vector2.zero, Vector2.zero);
+                new Vector2(0.5f, 0.04f), new Vector2(0.95f, 0.13f), Vector2.zero, Vector2.zero);
             var confirmImg = confirmRT.gameObject.AddComponent<Image>();
             confirmImg.color = new Color(0.15f, 0.55f, 0.2f);
             _confirmBtn = confirmRT.gameObject.AddComponent<Button>();
@@ -223,6 +234,120 @@ namespace SpellboundAscent.UI
             _confirmText = MakeTMP(confirmRT, "Txt", "계속",
                 Vector2.zero, Vector2.one, 26, Color.white);
             _confirmText.alignment = TextAlignmentOptions.Center;
+        }
+
+        void ShowDeckOverlay()
+        {
+            var run = GameManager.Instance.CurrentRun;
+            if (run == null) return;
+
+            var overlay = new GameObject("DeckOverlay", typeof(RectTransform));
+            var overlayCanvas = overlay.AddComponent<Canvas>();
+            overlayCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            overlayCanvas.sortingOrder = 30;
+            var scaler = overlay.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1080, 1920);
+            scaler.matchWidthOrHeight = 0.5f;
+            overlay.AddComponent<GraphicRaycaster>();
+
+            var overlayRoot = overlay.GetComponent<RectTransform>();
+
+            var bg = MakeRect(overlayRoot, "Bg", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            var bgImg = bg.gameObject.AddComponent<Image>();
+            bgImg.color = new Color(0.05f, 0.04f, 0.08f, 0.97f);
+            bgImg.raycastTarget = false;
+
+            MakeTMP(overlayRoot, "Title", $"내 덱 ({run.deck.Count}장)",
+                new Vector2(0.1f, 0.92f), new Vector2(0.9f, 0.97f), 36,
+                new Color(1, 0.85f, 0.2f)).alignment = TextAlignmentOptions.Center;
+
+            // Close button
+            var closeRT = MakeRect(overlayRoot, "Close",
+                new Vector2(0.3f, 0.02f), new Vector2(0.7f, 0.08f), Vector2.zero, Vector2.zero);
+            var closeImg = closeRT.gameObject.AddComponent<Image>();
+            closeImg.color = new Color(0.4f, 0.2f, 0.2f, 0.9f);
+            var closeBtn = closeRT.gameObject.AddComponent<Button>();
+            closeBtn.targetGraphic = closeImg;
+            closeBtn.onClick.AddListener(() => Destroy(overlay));
+            MakeTMP(closeRT, "Txt", "닫기",
+                Vector2.zero, Vector2.one, 28, Color.white).alignment = TextAlignmentOptions.Center;
+
+            // Scroll area
+            var scrollContainer = MakeRect(overlayRoot, "Scroll",
+                new Vector2(0.02f, 0.09f), new Vector2(0.98f, 0.91f), Vector2.zero, Vector2.zero);
+            var scrollRect = scrollContainer.gameObject.AddComponent<ScrollRect>();
+            scrollContainer.gameObject.AddComponent<Image>().color = Color.clear;
+
+            var viewport = MakeRect(scrollContainer, "Viewport",
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            viewport.gameObject.AddComponent<RectMask2D>();
+
+            var content = MakeRect(viewport, "Content",
+                new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, Vector2.zero);
+            content.pivot = new Vector2(0.5f, 1f);
+
+            scrollRect.viewport = viewport;
+            scrollRect.content = content;
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+
+            int cols = 3;
+            float cardW = 320f;
+            float cardH = 200f;
+            float padX = 20f;
+            float padY = 10f;
+
+            var deck = run.deck;
+            int rows = Mathf.CeilToInt(deck.Count / (float)cols);
+            float totalH = rows * (cardH + padY) + padY;
+            content.sizeDelta = new Vector2(0, totalH);
+
+            for (int i = 0; i < deck.Count; i++)
+            {
+                var card = deck[i];
+                int col = i % cols;
+                int row = i / cols;
+
+                float x = padX + col * (cardW + padX);
+                float y = -padY - row * (cardH + padY);
+
+                var cardRT = new GameObject($"Card{i}", typeof(RectTransform)).GetComponent<RectTransform>();
+                cardRT.SetParent(content, false);
+                cardRT.anchorMin = new Vector2(0, 1);
+                cardRT.anchorMax = new Vector2(0, 1);
+                cardRT.pivot = new Vector2(0, 1);
+                cardRT.anchoredPosition = new Vector2(x, y);
+                cardRT.sizeDelta = new Vector2(cardW, cardH);
+
+                Color cardColor = card.Data.type switch
+                {
+                    "attack" => new Color(0.5f, 0.15f, 0.15f, 0.9f),
+                    "skill" => new Color(0.15f, 0.25f, 0.5f, 0.9f),
+                    "power" => new Color(0.35f, 0.15f, 0.5f, 0.9f),
+                    _ => new Color(0.3f, 0.3f, 0.3f, 0.9f)
+                };
+
+                cardRT.gameObject.AddComponent<Image>().color = cardColor;
+
+                string upgStr = card.Upgraded ? " <color=#44ff44>+</color>" : "";
+                MakeTMP(cardRT, "Cost", card.Cost.ToString(),
+                    new Vector2(0, 0.78f), new Vector2(0.2f, 1f), 26,
+                    new Color(1, 0.85f, 0.2f)).raycastTarget = false;
+
+                string cardName = !string.IsNullOrEmpty(card.Data.nameKo) ? card.Data.nameKo : card.Data.name;
+                var nameT = MakeTMP(cardRT, "Name", cardName + upgStr,
+                    new Vector2(0.05f, 0.55f), new Vector2(0.95f, 0.78f), 22, Color.white);
+                nameT.fontStyle = FontStyles.Bold;
+                nameT.raycastTarget = false;
+
+                string desc = card.ActiveDescriptionKo;
+                var descT = MakeTMP(cardRT, "Desc", desc,
+                    new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.55f), 16,
+                    new Color(0.75f, 0.75f, 0.75f));
+                descT.alignment = TextAlignmentOptions.TopLeft;
+                descT.raycastTarget = false;
+            }
         }
 
         void OnSkipClicked()

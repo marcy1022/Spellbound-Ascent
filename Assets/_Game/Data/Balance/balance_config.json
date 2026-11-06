@@ -8,7 +8,7 @@
     "maxHand": 10
   },
   "block": {
-    "resetOnTurnStart": true
+    "resetOnTurnStart": false
   },
   "startDeck": {
     "size": 8,
@@ -19,7 +19,8 @@
   "classHP": {
     "pyromancer": 75,
     "warden": 90,
-    "chronomancer": 60
+    "chronomancer": 60,
+    "necromancer": 70
   },
   "masterSkillCooldown": 3,
 

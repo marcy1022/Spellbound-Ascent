@@ -28,6 +28,152 @@ namespace SpellboundAscent.Core
             Instance = this;
         }
 
+        public void ShowTitle()
+        {
+            var go = new GameObject("TitleCanvas");
+            var canvas = go.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 50;
+            var scaler = go.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1080, 1920);
+            scaler.matchWidthOrHeight = 0.5f;
+            go.AddComponent<GraphicRaycaster>();
+
+            if (FindAnyObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
+            {
+                var es = new GameObject("EventSystem");
+                es.AddComponent<UnityEngine.EventSystems.EventSystem>();
+                es.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+            }
+
+            var root = go.GetComponent<RectTransform>();
+
+            var bg = MakeRect(root, "Bg", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            bg.gameObject.AddComponent<Image>().color = new Color(0.04f, 0.02f, 0.08f);
+
+            var titleT = MakeTMP(root, "Title", "SPELLBOUND\nASCENT",
+                new Vector2(0.05f, 0.45f), new Vector2(0.95f, 0.78f), 72,
+                new Color(1, 0.85f, 0.2f));
+            titleT.alignment = TextAlignmentOptions.Center;
+            titleT.fontStyle = FontStyles.Bold;
+
+            var subT = MakeTMP(root, "Sub", "로그라이크 덱빌더",
+                new Vector2(0.1f, 0.38f), new Vector2(0.9f, 0.45f), 30,
+                new Color(0.6f, 0.6f, 0.7f));
+            subT.alignment = TextAlignmentOptions.Center;
+
+            bool hasSave = SaveLoadManager.HasSave();
+
+            if (hasSave)
+            {
+                var continueBtn = MakeRect(root, "Continue",
+                    new Vector2(0.2f, 0.25f), new Vector2(0.8f, 0.33f), Vector2.zero, Vector2.zero);
+                var contImg = continueBtn.gameObject.AddComponent<Image>();
+                contImg.color = new Color(0.15f, 0.3f, 0.55f);
+                var cb = continueBtn.gameObject.AddComponent<Button>();
+                cb.targetGraphic = contImg;
+                cb.onClick.AddListener(() =>
+                {
+                    Destroy(go);
+                    LoadAndContinue();
+                });
+                var contT = MakeTMP(continueBtn, "Txt", "이어하기",
+                    Vector2.zero, Vector2.one, 32, Color.white);
+                contT.alignment = TextAlignmentOptions.Center;
+
+                var newBtn = MakeRect(root, "NewGame",
+                    new Vector2(0.2f, 0.15f), new Vector2(0.8f, 0.23f), Vector2.zero, Vector2.zero);
+                var newImg = newBtn.gameObject.AddComponent<Image>();
+                newImg.color = new Color(0.3f, 0.3f, 0.3f);
+                var nb = newBtn.gameObject.AddComponent<Button>();
+                nb.targetGraphic = newImg;
+                nb.onClick.AddListener(() =>
+                {
+                    SaveLoadManager.DeleteSave();
+                    Destroy(go);
+                    ShowClassSelect();
+                });
+                var newT = MakeTMP(newBtn, "Txt", "새 게임",
+                    Vector2.zero, Vector2.one, 26, new Color(0.7f, 0.7f, 0.7f));
+                newT.alignment = TextAlignmentOptions.Center;
+
+                var cardCBtn = MakeRect(root, "CardCodex",
+                    new Vector2(0.03f, 0.06f), new Vector2(0.33f, 0.13f), Vector2.zero, Vector2.zero);
+                cardCBtn.gameObject.AddComponent<Image>().color = new Color(0.2f, 0.2f, 0.35f);
+                var ccb1 = cardCBtn.gameObject.AddComponent<Button>();
+                ccb1.targetGraphic = cardCBtn.GetComponent<Image>();
+                ccb1.onClick.AddListener(() => CardCodexUI.Show());
+                MakeTMP(cardCBtn, "Txt", "카드 도감",
+                    Vector2.zero, Vector2.one, 22, new Color(0.7f, 0.8f, 1f)).alignment = TextAlignmentOptions.Center;
+
+                var potCBtn = MakeRect(root, "PotionCodex",
+                    new Vector2(0.35f, 0.06f), new Vector2(0.65f, 0.13f), Vector2.zero, Vector2.zero);
+                potCBtn.gameObject.AddComponent<Image>().color = new Color(0.12f, 0.22f, 0.15f);
+                var pcb1 = potCBtn.gameObject.AddComponent<Button>();
+                pcb1.targetGraphic = potCBtn.GetComponent<Image>();
+                pcb1.onClick.AddListener(() => PotionCodexUI.Show());
+                MakeTMP(potCBtn, "Txt", "물약 도감",
+                    Vector2.zero, Vector2.one, 22, new Color(0.5f, 1f, 0.6f)).alignment = TextAlignmentOptions.Center;
+
+                var relCBtn = MakeRect(root, "RelicCodex",
+                    new Vector2(0.67f, 0.06f), new Vector2(0.97f, 0.13f), Vector2.zero, Vector2.zero);
+                relCBtn.gameObject.AddComponent<Image>().color = new Color(0.25f, 0.15f, 0.2f);
+                var rcb1 = relCBtn.gameObject.AddComponent<Button>();
+                rcb1.targetGraphic = relCBtn.GetComponent<Image>();
+                rcb1.onClick.AddListener(() => RelicCodexUI.Show());
+                MakeTMP(relCBtn, "Txt", "유물 도감",
+                    Vector2.zero, Vector2.one, 22, new Color(1f, 0.7f, 0.9f)).alignment = TextAlignmentOptions.Center;
+            }
+            else
+            {
+                var tapT = MakeTMP(root, "Tap", "화면을 터치하세요",
+                    new Vector2(0.2f, 0.15f), new Vector2(0.8f, 0.22f), 26,
+                    new Color(0.5f, 0.5f, 0.5f));
+                tapT.alignment = TextAlignmentOptions.Center;
+
+                var cardCBtn2 = MakeRect(root, "CardCodex",
+                    new Vector2(0.03f, 0.06f), new Vector2(0.33f, 0.13f), Vector2.zero, Vector2.zero);
+                cardCBtn2.gameObject.AddComponent<Image>().color = new Color(0.2f, 0.2f, 0.35f);
+                var ccb2 = cardCBtn2.gameObject.AddComponent<Button>();
+                ccb2.targetGraphic = cardCBtn2.GetComponent<Image>();
+                ccb2.onClick.AddListener(() => CardCodexUI.Show());
+                MakeTMP(cardCBtn2, "Txt", "카드 도감",
+                    Vector2.zero, Vector2.one, 22, new Color(0.7f, 0.8f, 1f)).alignment = TextAlignmentOptions.Center;
+
+                var potCBtn2 = MakeRect(root, "PotionCodex",
+                    new Vector2(0.35f, 0.06f), new Vector2(0.65f, 0.13f), Vector2.zero, Vector2.zero);
+                potCBtn2.gameObject.AddComponent<Image>().color = new Color(0.12f, 0.22f, 0.15f);
+                var pcb2 = potCBtn2.gameObject.AddComponent<Button>();
+                pcb2.targetGraphic = potCBtn2.GetComponent<Image>();
+                pcb2.onClick.AddListener(() => PotionCodexUI.Show());
+                MakeTMP(potCBtn2, "Txt", "물약 도감",
+                    Vector2.zero, Vector2.one, 22, new Color(0.5f, 1f, 0.6f)).alignment = TextAlignmentOptions.Center;
+
+                var relCBtn2 = MakeRect(root, "RelicCodex",
+                    new Vector2(0.67f, 0.06f), new Vector2(0.97f, 0.13f), Vector2.zero, Vector2.zero);
+                relCBtn2.gameObject.AddComponent<Image>().color = new Color(0.25f, 0.15f, 0.2f);
+                var rcb2 = relCBtn2.gameObject.AddComponent<Button>();
+                rcb2.targetGraphic = relCBtn2.GetComponent<Image>();
+                rcb2.onClick.AddListener(() => RelicCodexUI.Show());
+                MakeTMP(relCBtn2, "Txt", "유물 도감",
+                    Vector2.zero, Vector2.one, 22, new Color(1f, 0.7f, 0.9f)).alignment = TextAlignmentOptions.Center;
+
+                var tapBtn = MakeRect(root, "TapArea",
+                    new Vector2(0, 0.14f), new Vector2(1, 1), Vector2.zero, Vector2.zero);
+                var tapImg = tapBtn.gameObject.AddComponent<Image>();
+                tapImg.color = new Color(0, 0, 0, 0);
+                tapImg.raycastTarget = true;
+                var btn = tapBtn.gameObject.AddComponent<Button>();
+                btn.targetGraphic = tapImg;
+                btn.onClick.AddListener(() =>
+                {
+                    Destroy(go);
+                    ShowClassSelect();
+                });
+            }
+        }
+
         public void ShowClassSelect()
         {
             var go = new GameObject("ClassSelectCanvas");
@@ -53,11 +199,11 @@ namespace SpellboundAscent.Core
             bg.gameObject.AddComponent<Image>().color = new Color(0.04f, 0.03f, 0.08f);
 
             MakeTMP(root, "Title", "SPELLBOUND ASCENT",
-                new Vector2(0.05f, 0.82f), new Vector2(0.95f, 0.95f), 52,
+                new Vector2(0.05f, 0.88f), new Vector2(0.95f, 0.97f), 46,
                 new Color(1, 0.85f, 0.2f));
 
             MakeTMP(root, "Sub", "클래스를 선택하세요",
-                new Vector2(0.1f, 0.76f), new Vector2(0.9f, 0.82f), 28,
+                new Vector2(0.1f, 0.83f), new Vector2(0.9f, 0.88f), 26,
                 new Color(0.7f, 0.7f, 0.7f));
 
             var balance = GameManager.Instance.Balance;
@@ -66,15 +212,29 @@ namespace SpellboundAscent.Core
                 "Pyromancer", "화염술사",
                 balance.classHP.Get("pyromancer"),
                 new Color(0.6f, 0.15f, 0.1f),
-                "화염으로 적을 불태우는 마법사.\n지속 화상 데미지와 광역 공격 특화.\n특기: 화상, 광역, 순수 데미지",
-                new Vector2(0.05f, 0.38f), new Vector2(0.95f, 0.74f));
+                "잔불 축적 → 폭발 버스트 데미지\n특기: 잔불, 기폭, 자기희생\n마스터: 점화 (잔불×2 전체 데미지)",
+                new Vector2(0.05f, 0.62f), new Vector2(0.95f, 0.82f));
 
             BuildClassCard(root, go, "warden",
                 "Warden", "수호자",
                 balance.classHP.Get("warden"),
                 new Color(0.1f, 0.4f, 0.15f),
-                "숲의 수호자로 독과 가시로 적을 약화시키고\n단단한 방어로 아군을 보호.\n특기: 독, 가시, 방어",
-                new Vector2(0.05f, 0.04f), new Vector2(0.95f, 0.36f));
+                "턴마다 성장하는 방어 스케일링\n특기: 성장, 가시, 재생, 속박\n마스터: 철벽 (블록 2배 + 신속)",
+                new Vector2(0.05f, 0.42f), new Vector2(0.95f, 0.60f));
+
+            BuildClassCard(root, go, "chronomancer",
+                "Chronomancer", "시간술사",
+                balance.classHP.Get("chronomancer"),
+                new Color(0.15f, 0.2f, 0.5f),
+                "드로우/에너지 조작으로 대량 콤보\n특기: 가속, 시간 정지, 핸드 활용\n마스터: 되감기 (카드 복귀 + 에너지)",
+                new Vector2(0.05f, 0.22f), new Vector2(0.95f, 0.40f));
+
+            BuildClassCard(root, go, "necromancer",
+                "Necromancer", "사령술사",
+                balance.classHP.Get("necromancer"),
+                new Color(0.35f, 0.1f, 0.35f),
+                "독과 자기희생으로 고위험 고수익\n특기: 독, 생명 흡수, 자해 카드\n마스터: 영혼 수확 (독 회수 + 힘)",
+                new Vector2(0.05f, 0.02f), new Vector2(0.95f, 0.20f));
         }
 
         void BuildClassCard(RectTransform root, GameObject canvas, string classId,
@@ -100,18 +260,237 @@ namespace SpellboundAscent.Core
                 StartRun(classId);
             });
 
+            var portraitArea = MakeRect(card, "Portrait",
+                new Vector2(0.01f, 0.05f), new Vector2(0.24f, 0.95f), Vector2.zero, Vector2.zero);
+            var portraitBg = portraitArea.gameObject.AddComponent<Image>();
+            portraitBg.color = new Color(0, 0, 0, 0.3f);
+            portraitBg.raycastTarget = false;
+            BuildClassPortrait(portraitArea, classId);
+
             var classNameT = MakeTMP(card, "Name", $"{name}  /  {nameKo}",
-                new Vector2(0.05f, 0.75f), new Vector2(0.95f, 0.95f), 38, Color.white);
+                new Vector2(0.26f, 0.68f), new Vector2(0.72f, 0.95f), 30, Color.white);
             classNameT.fontStyle = FontStyles.Bold;
 
             MakeTMP(card, "HP", $"HP: {hp}",
-                new Vector2(0.05f, 0.6f), new Vector2(0.3f, 0.75f), 30,
+                new Vector2(0.76f, 0.68f), new Vector2(0.98f, 0.95f), 26,
                 new Color(0.4f, 1f, 0.4f));
 
             var descTMP = MakeTMP(card, "Desc", desc,
-                new Vector2(0.05f, 0.08f), new Vector2(0.95f, 0.58f), 24,
+                new Vector2(0.26f, 0.05f), new Vector2(0.98f, 0.65f), 20,
                 new Color(0.85f, 0.85f, 0.85f));
             descTMP.alignment = TextAlignmentOptions.TopLeft;
+        }
+
+        void BuildClassPortrait(RectTransform parent, string classId)
+        {
+            switch (classId)
+            {
+                case "pyromancer":
+                    BuildPyromancerPortrait(parent);
+                    break;
+                case "warden":
+                    BuildWardenPortrait(parent);
+                    break;
+                case "chronomancer":
+                    BuildChronomancerPortrait(parent);
+                    break;
+                case "necromancer":
+                    BuildNecromancerPortrait(parent);
+                    break;
+            }
+        }
+
+        void BuildPyromancerPortrait(RectTransform parent)
+        {
+            var flame1 = MakeRect(parent, "Flame1",
+                new Vector2(0.2f, 0.15f), new Vector2(0.8f, 0.75f), Vector2.zero, Vector2.zero);
+            var f1 = flame1.gameObject.AddComponent<Image>();
+            f1.color = new Color(1f, 0.4f, 0.05f, 0.9f);
+            f1.raycastTarget = false;
+            flame1.localRotation = Quaternion.Euler(0, 0, 45);
+
+            var flame2 = MakeRect(parent, "Flame2",
+                new Vector2(0.25f, 0.3f), new Vector2(0.75f, 0.85f), Vector2.zero, Vector2.zero);
+            var f2 = flame2.gameObject.AddComponent<Image>();
+            f2.color = new Color(1f, 0.7f, 0.1f, 0.85f);
+            f2.raycastTarget = false;
+            flame2.localRotation = Quaternion.Euler(0, 0, 45);
+
+            var core = MakeRect(parent, "Core",
+                new Vector2(0.35f, 0.35f), new Vector2(0.65f, 0.65f), Vector2.zero, Vector2.zero);
+            var c = core.gameObject.AddComponent<Image>();
+            c.color = new Color(1f, 0.95f, 0.5f, 0.9f);
+            c.raycastTarget = false;
+
+            var spark1 = MakeRect(parent, "Spark1",
+                new Vector2(0.1f, 0.7f), new Vector2(0.25f, 0.85f), Vector2.zero, Vector2.zero);
+            var s1 = spark1.gameObject.AddComponent<Image>();
+            s1.color = new Color(1f, 0.5f, 0.1f, 0.7f);
+            s1.raycastTarget = false;
+            spark1.localRotation = Quaternion.Euler(0, 0, 30);
+
+            var spark2 = MakeRect(parent, "Spark2",
+                new Vector2(0.7f, 0.75f), new Vector2(0.85f, 0.9f), Vector2.zero, Vector2.zero);
+            var s2 = spark2.gameObject.AddComponent<Image>();
+            s2.color = new Color(1f, 0.6f, 0.15f, 0.6f);
+            s2.raycastTarget = false;
+            spark2.localRotation = Quaternion.Euler(0, 0, -20);
+
+            MakeTMP(parent, "Icon", "FIRE",
+                new Vector2(0.15f, 0.02f), new Vector2(0.85f, 0.2f), 16,
+                new Color(1, 0.6f, 0.2f, 0.7f)).raycastTarget = false;
+        }
+
+        void BuildWardenPortrait(RectTransform parent)
+        {
+            var trunk = MakeRect(parent, "Trunk",
+                new Vector2(0.4f, 0.05f), new Vector2(0.6f, 0.45f), Vector2.zero, Vector2.zero);
+            var t = trunk.gameObject.AddComponent<Image>();
+            t.color = new Color(0.4f, 0.25f, 0.1f, 0.9f);
+            t.raycastTarget = false;
+
+            var canopy1 = MakeRect(parent, "Canopy1",
+                new Vector2(0.1f, 0.35f), new Vector2(0.9f, 0.75f), Vector2.zero, Vector2.zero);
+            var c1 = canopy1.gameObject.AddComponent<Image>();
+            c1.color = new Color(0.15f, 0.6f, 0.2f, 0.85f);
+            c1.raycastTarget = false;
+
+            var canopy2 = MakeRect(parent, "Canopy2",
+                new Vector2(0.2f, 0.55f), new Vector2(0.8f, 0.9f), Vector2.zero, Vector2.zero);
+            var c2 = canopy2.gameObject.AddComponent<Image>();
+            c2.color = new Color(0.1f, 0.5f, 0.15f, 0.9f);
+            c2.raycastTarget = false;
+
+            var leaf1 = MakeRect(parent, "Leaf1",
+                new Vector2(0.05f, 0.6f), new Vector2(0.25f, 0.8f), Vector2.zero, Vector2.zero);
+            var l1 = leaf1.gameObject.AddComponent<Image>();
+            l1.color = new Color(0.2f, 0.7f, 0.25f, 0.6f);
+            l1.raycastTarget = false;
+            leaf1.localRotation = Quaternion.Euler(0, 0, 15);
+
+            var leaf2 = MakeRect(parent, "Leaf2",
+                new Vector2(0.75f, 0.65f), new Vector2(0.95f, 0.85f), Vector2.zero, Vector2.zero);
+            var l2 = leaf2.gameObject.AddComponent<Image>();
+            l2.color = new Color(0.2f, 0.7f, 0.25f, 0.6f);
+            l2.raycastTarget = false;
+            leaf2.localRotation = Quaternion.Euler(0, 0, -15);
+
+            MakeTMP(parent, "Icon", "NATURE",
+                new Vector2(0.15f, 0.02f), new Vector2(0.85f, 0.2f), 16,
+                new Color(0.3f, 0.9f, 0.4f, 0.7f)).raycastTarget = false;
+        }
+
+        void BuildChronomancerPortrait(RectTransform parent)
+        {
+            var outerRing = MakeRect(parent, "Ring",
+                new Vector2(0.1f, 0.2f), new Vector2(0.9f, 0.9f), Vector2.zero, Vector2.zero);
+            var or = outerRing.gameObject.AddComponent<Image>();
+            or.color = new Color(0.3f, 0.45f, 0.9f, 0.8f);
+            or.raycastTarget = false;
+
+            var innerRing = MakeRect(parent, "Inner",
+                new Vector2(0.2f, 0.28f), new Vector2(0.8f, 0.82f), Vector2.zero, Vector2.zero);
+            var ir = innerRing.gameObject.AddComponent<Image>();
+            ir.color = new Color(0.08f, 0.1f, 0.25f, 0.9f);
+            ir.raycastTarget = false;
+
+            var hand1 = MakeRect(parent, "Hand1",
+                new Vector2(0.47f, 0.5f), new Vector2(0.53f, 0.78f), Vector2.zero, Vector2.zero);
+            var h1 = hand1.gameObject.AddComponent<Image>();
+            h1.color = new Color(0.5f, 0.7f, 1f, 0.9f);
+            h1.raycastTarget = false;
+
+            var hand2 = MakeRect(parent, "Hand2",
+                new Vector2(0.5f, 0.5f), new Vector2(0.72f, 0.58f), Vector2.zero, Vector2.zero);
+            var h2 = hand2.gameObject.AddComponent<Image>();
+            h2.color = new Color(0.5f, 0.7f, 1f, 0.9f);
+            h2.raycastTarget = false;
+
+            var center = MakeRect(parent, "Center",
+                new Vector2(0.44f, 0.49f), new Vector2(0.56f, 0.61f), Vector2.zero, Vector2.zero);
+            var ct = center.gameObject.AddComponent<Image>();
+            ct.color = new Color(0.6f, 0.8f, 1f, 0.95f);
+            ct.raycastTarget = false;
+
+            var glow1 = MakeRect(parent, "Glow1",
+                new Vector2(0.05f, 0.75f), new Vector2(0.2f, 0.9f), Vector2.zero, Vector2.zero);
+            var g1 = glow1.gameObject.AddComponent<Image>();
+            g1.color = new Color(0.4f, 0.5f, 1f, 0.4f);
+            g1.raycastTarget = false;
+            glow1.localRotation = Quaternion.Euler(0, 0, 45);
+
+            MakeTMP(parent, "Icon", "TIME",
+                new Vector2(0.15f, 0.02f), new Vector2(0.85f, 0.2f), 16,
+                new Color(0.5f, 0.7f, 1f, 0.7f)).raycastTarget = false;
+        }
+
+        void BuildNecromancerPortrait(RectTransform parent)
+        {
+            var skull = MakeRect(parent, "Skull",
+                new Vector2(0.15f, 0.35f), new Vector2(0.85f, 0.9f), Vector2.zero, Vector2.zero);
+            var sk = skull.gameObject.AddComponent<Image>();
+            sk.color = new Color(0.75f, 0.65f, 0.85f, 0.85f);
+            sk.raycastTarget = false;
+
+            var jaw = MakeRect(parent, "Jaw",
+                new Vector2(0.25f, 0.2f), new Vector2(0.75f, 0.45f), Vector2.zero, Vector2.zero);
+            var jw = jaw.gameObject.AddComponent<Image>();
+            jw.color = new Color(0.65f, 0.55f, 0.75f, 0.8f);
+            jw.raycastTarget = false;
+
+            var eyeL = MakeRect(parent, "EyeL",
+                new Vector2(0.22f, 0.6f), new Vector2(0.42f, 0.8f), Vector2.zero, Vector2.zero);
+            var el = eyeL.gameObject.AddComponent<Image>();
+            el.color = new Color(0.15f, 0f, 0.2f, 0.95f);
+            el.raycastTarget = false;
+
+            var eyeR = MakeRect(parent, "EyeR",
+                new Vector2(0.58f, 0.6f), new Vector2(0.78f, 0.8f), Vector2.zero, Vector2.zero);
+            var er = eyeR.gameObject.AddComponent<Image>();
+            er.color = new Color(0.15f, 0f, 0.2f, 0.95f);
+            er.raycastTarget = false;
+
+            var pupilL = MakeRect(parent, "PupilL",
+                new Vector2(0.28f, 0.65f), new Vector2(0.36f, 0.75f), Vector2.zero, Vector2.zero);
+            var pl = pupilL.gameObject.AddComponent<Image>();
+            pl.color = new Color(0.6f, 0.1f, 0.8f, 0.9f);
+            pl.raycastTarget = false;
+
+            var pupilR = MakeRect(parent, "PupilR",
+                new Vector2(0.64f, 0.65f), new Vector2(0.72f, 0.75f), Vector2.zero, Vector2.zero);
+            var pr = pupilR.gameObject.AddComponent<Image>();
+            pr.color = new Color(0.6f, 0.1f, 0.8f, 0.9f);
+            pr.raycastTarget = false;
+
+            var aura1 = MakeRect(parent, "Aura1",
+                new Vector2(0f, 0.1f), new Vector2(0.2f, 0.35f), Vector2.zero, Vector2.zero);
+            var a1 = aura1.gameObject.AddComponent<Image>();
+            a1.color = new Color(0.5f, 0.1f, 0.6f, 0.4f);
+            a1.raycastTarget = false;
+
+            var aura2 = MakeRect(parent, "Aura2",
+                new Vector2(0.8f, 0.15f), new Vector2(1f, 0.4f), Vector2.zero, Vector2.zero);
+            var a2 = aura2.gameObject.AddComponent<Image>();
+            a2.color = new Color(0.5f, 0.1f, 0.6f, 0.4f);
+            a2.raycastTarget = false;
+
+            MakeTMP(parent, "Icon", "DEATH",
+                new Vector2(0.15f, 0.02f), new Vector2(0.85f, 0.2f), 16,
+                new Color(0.7f, 0.5f, 0.9f, 0.7f)).raycastTarget = false;
+        }
+
+        void LoadAndContinue()
+        {
+            if (SaveLoadManager.Load(out var run, out var map))
+            {
+                GameManager.Instance.RestoreRun(run);
+                _currentMap = map;
+                ShowMap();
+            }
+            else
+            {
+                ShowClassSelect();
+            }
         }
 
         public void StartRun(string playerClass)
@@ -131,6 +510,8 @@ namespace SpellboundAscent.Core
         void ShowMap()
         {
             if (_mapUI != null) Destroy(_mapUI);
+
+            SaveLoadManager.Save(GameManager.Instance.CurrentRun, _currentMap);
 
             var go = new GameObject("MapUI");
             _mapUI = go.AddComponent<MapUI>();
@@ -175,31 +556,72 @@ namespace SpellboundAscent.Core
         {
             _lastEnemyType = enemyType;
             var run = GameManager.Instance.CurrentRun;
-            var enemies = GameManager.Instance.GetEnemies(run.currentAct, enemyType);
-
-            if (enemies.Count == 0)
-                enemies = GameManager.Instance.GetEnemies(run.currentAct, "normal");
 
             var picked = new List<Enemy.EnemyData>();
+            var scales = new List<float>();
+            var ccImmunes = new List<bool>();
 
-            float roll = Random.value;
-            int count = enemyType switch
-            {
-                "normal" => roll < 0.25f ? 1 : roll < 0.65f ? 2 : 3,
-                "elite" => 1,
-                "boss" => 1,
-                _ => 1
-            };
+            float ccChance = run.currentFloor <= 3 ? 0f : run.currentFloor <= 7 ? 0.12f : 0.2f;
 
-            for (int i = 0; i < count && enemies.Count > 0; i++)
+            if (enemyType == "normal")
             {
-                var enemy = enemies[Random.Range(0, enemies.Count)];
-                picked.Add(enemy);
+                var enemies = GameManager.Instance.GetEnemies(run.currentAct, "normal");
+                if (enemies.Count == 0) return;
+
+                int count = RollNormalEnemyCount(run.currentFloor);
+                float s = count switch { 2 => 0.6f, 3 => 0.47f, _ => 1f };
+
+                for (int i = 0; i < count; i++)
+                {
+                    picked.Add(enemies[Random.Range(0, enemies.Count)]);
+                    scales.Add(s);
+                    ccImmunes.Add(Random.value < ccChance);
+                }
+            }
+            else if (enemyType == "elite")
+            {
+                var elites = GameManager.Instance.GetEnemies(run.currentAct, "elite");
+                if (elites.Count == 0)
+                    elites = GameManager.Instance.GetEnemies(run.currentAct, "normal");
+
+                picked.Add(elites[Random.Range(0, elites.Count)]);
+                scales.Add(1f);
+                ccImmunes.Add(Random.value < 0.35f);
+
+                if (Random.value < 0.35f)
+                {
+                    var normals = GameManager.Instance.GetEnemies(run.currentAct, "normal");
+                    if (normals.Count > 0)
+                    {
+                        picked.Add(normals[Random.Range(0, normals.Count)]);
+                        scales.Add(0.3f);
+                        ccImmunes.Add(false);
+                    }
+                }
+            }
+            else if (enemyType == "boss")
+            {
+                var bosses = GameManager.Instance.GetEnemies(run.currentAct, "boss");
+                if (bosses.Count == 0)
+                    bosses = GameManager.Instance.GetEnemies(run.currentAct, "normal");
+
+                picked.Add(bosses[Random.Range(0, bosses.Count)]);
+                scales.Add(1f);
+                ccImmunes.Add(true);
             }
 
             BattleManager.Instance.OnBattleEnded -= OnBattleEnded;
             BattleManager.Instance.OnBattleEnded += OnBattleEnded;
-            BattleManager.Instance.StartBattle(picked);
+            BattleManager.Instance.StartBattle(picked, scales, ccImmunes);
+        }
+
+        int RollNormalEnemyCount(int floor)
+        {
+            float roll = Random.value;
+            if (floor <= 1) return 1;
+            if (floor <= 4) return roll < 0.5f ? 1 : 2;
+            if (floor <= 7) return roll < 0.25f ? 1 : roll < 0.75f ? 2 : 3;
+            return roll < 0.15f ? 1 : roll < 0.55f ? 2 : 3;
         }
 
         void OnBattleEnded(bool victory)
@@ -842,6 +1264,7 @@ namespace SpellboundAscent.Core
 
         void ShowGameOver()
         {
+            SaveLoadManager.DeleteSave();
             DestroyBattleCanvas();
             var run = GameManager.Instance.CurrentRun;
 
@@ -863,7 +1286,7 @@ namespace SpellboundAscent.Core
                 new Vector2(0.1f, 0.6f), new Vector2(0.9f, 0.8f), 64,
                 new Color(1, 0.3f, 0.3f));
 
-            string className = run.playerClass == "pyromancer" ? "화염술사" : "수호자";
+            string className = run.playerClass switch { "pyromancer" => "화염술사", "warden" => "수호자", "chronomancer" => "시간술사", "necromancer" => "사령술사", _ => run.playerClass };
             MakeTMP(root, "Stats",
                 $"클래스: {className}\n{run.currentAct}막 - {run.currentFloor}층\n골드: {run.gold}\n덱: {run.deck.Count}장\n유물: {run.relics.Count}개",
                 new Vector2(0.1f, 0.35f), new Vector2(0.9f, 0.58f), 28, Color.white);
@@ -880,6 +1303,7 @@ namespace SpellboundAscent.Core
 
         void ShowVictoryScreen()
         {
+            SaveLoadManager.DeleteSave();
             DestroyBattleCanvas();
             var run = GameManager.Instance.CurrentRun;
 
@@ -905,7 +1329,7 @@ namespace SpellboundAscent.Core
                 new Vector2(0.1f, 0.58f), new Vector2(0.9f, 0.65f), 28,
                 new Color(0.8f, 1f, 0.5f));
 
-            string vClassName = run.playerClass == "pyromancer" ? "화염술사" : "수호자";
+            string vClassName = run.playerClass switch { "pyromancer" => "화염술사", "warden" => "수호자", "chronomancer" => "시간술사", "necromancer" => "사령술사", _ => run.playerClass };
             MakeTMP(root, "Stats",
                 $"클래스: {vClassName}\nHP: {run.currentHp}/{run.maxHp}\n골드: {run.gold}\n덱: {run.deck.Count}장\n유물: {run.relics.Count}개",
                 new Vector2(0.1f, 0.35f), new Vector2(0.9f, 0.55f), 28, Color.white);

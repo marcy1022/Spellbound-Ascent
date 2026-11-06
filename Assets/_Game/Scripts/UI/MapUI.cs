@@ -107,7 +107,7 @@ namespace SpellboundAscent.UI
                 new Color(0.7f, 0.7f, 0.7f));
 
             var deckBtn = MakeRect(_root, "DeckBtn",
-                new Vector2(0.02f, 0.005f), new Vector2(0.15f, 0.035f), Vector2.zero, Vector2.zero);
+                new Vector2(0.02f, 0.005f), new Vector2(0.12f, 0.035f), Vector2.zero, Vector2.zero);
             var deckImg = deckBtn.gameObject.AddComponent<Image>();
             deckImg.color = new Color(0.2f, 0.2f, 0.35f, 0.9f);
             var db = deckBtn.gameObject.AddComponent<Button>();
@@ -115,6 +115,33 @@ namespace SpellboundAscent.UI
             db.onClick.AddListener(ToggleDeckView);
             MakeTMP(deckBtn, "Txt", $"덱 ({run.deck.Count})",
                 Vector2.zero, Vector2.one, 18, Color.white);
+
+            var cardCodexBtn = MakeRect(_root, "CardCodexBtn",
+                new Vector2(0.13f, 0.005f), new Vector2(0.23f, 0.035f), Vector2.zero, Vector2.zero);
+            cardCodexBtn.gameObject.AddComponent<Image>().color = new Color(0.2f, 0.15f, 0.3f, 0.9f);
+            var ccb = cardCodexBtn.gameObject.AddComponent<Button>();
+            ccb.targetGraphic = cardCodexBtn.GetComponent<Image>();
+            ccb.onClick.AddListener(() => CardCodexUI.Show());
+            MakeTMP(cardCodexBtn, "Txt", "카드",
+                Vector2.zero, Vector2.one, 16, new Color(0.8f, 0.7f, 1f));
+
+            var potCodexBtn = MakeRect(_root, "PotCodexBtn",
+                new Vector2(0.24f, 0.005f), new Vector2(0.34f, 0.035f), Vector2.zero, Vector2.zero);
+            potCodexBtn.gameObject.AddComponent<Image>().color = new Color(0.12f, 0.22f, 0.15f, 0.9f);
+            var pcb = potCodexBtn.gameObject.AddComponent<Button>();
+            pcb.targetGraphic = potCodexBtn.GetComponent<Image>();
+            pcb.onClick.AddListener(() => PotionCodexUI.Show());
+            MakeTMP(potCodexBtn, "Txt", "물약",
+                Vector2.zero, Vector2.one, 16, new Color(0.5f, 1f, 0.6f));
+
+            var relCodexBtn = MakeRect(_root, "RelCodexBtn",
+                new Vector2(0.35f, 0.005f), new Vector2(0.45f, 0.035f), Vector2.zero, Vector2.zero);
+            relCodexBtn.gameObject.AddComponent<Image>().color = new Color(0.25f, 0.15f, 0.2f, 0.9f);
+            var rcb = relCodexBtn.gameObject.AddComponent<Button>();
+            rcb.targetGraphic = relCodexBtn.GetComponent<Image>();
+            rcb.onClick.AddListener(() => RelicCodexUI.Show());
+            MakeTMP(relCodexBtn, "Txt", "유물",
+                Vector2.zero, Vector2.one, 16, new Color(1f, 0.7f, 0.9f));
         }
 
         void ToggleDeckView()
@@ -410,6 +437,8 @@ namespace SpellboundAscent.UI
         IEnumerator ScrollToFloorCoroutine(int floor)
         {
             yield return null;
+            Canvas.ForceUpdateCanvases();
+            yield return null;
 
             if (_scrollRect == null || _scrollContent == null) yield break;
             float floorHeight = 120f;
@@ -418,14 +447,14 @@ namespace SpellboundAscent.UI
             var viewportRT = _scrollRect.viewport;
             if (viewportRT == null) yield break;
 
-            Canvas.ForceUpdateCanvases();
             float viewHeight = viewportRT.rect.height;
             float maxScroll = contentHeight - viewHeight;
             if (maxScroll <= 0) yield break;
 
-            float targetY = padding + floor * floorHeight - viewHeight * 0.4f;
-            float scrollY = Mathf.Clamp(targetY, 0, maxScroll);
-            _scrollContent.anchoredPosition = new Vector2(0, scrollY);
+            float floorCenterY = padding + floor * floorHeight;
+            float scrollTarget = floorCenterY - viewHeight * 0.5f;
+            float normalized = Mathf.Clamp01(scrollTarget / maxScroll);
+            _scrollRect.verticalNormalizedPosition = normalized;
         }
 
         void HighlightReachableRoutes()

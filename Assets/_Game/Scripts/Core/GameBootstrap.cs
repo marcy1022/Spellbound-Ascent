@@ -18,7 +18,7 @@ namespace SpellboundAscent.Core
         IEnumerator Start()
         {
             yield return null;
-            GameFlowManager.Instance.ShowClassSelect();
+            GameFlowManager.Instance.ShowTitle();
         }
 
         T EnsureManager<T>(string name) where T : MonoBehaviour

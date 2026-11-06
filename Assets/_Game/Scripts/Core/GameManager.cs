@@ -22,6 +22,7 @@ namespace SpellboundAscent.Core
         List<Enemy.EnemyData> _enemyPool = new();
         List<Relic.RelicData> _relicPool = new();
         List<EventData> _eventPool = new();
+        List<PotionData> _potionPool = new();
 
         void Awake()
         {
@@ -40,7 +41,7 @@ namespace SpellboundAscent.Core
             Balance = JsonLoader.LoadBalanceConfig();
             Debug.Log($"[GM] Balance loaded: energy={Balance?.energy?.basePerTurn}");
 
-            foreach (string cls in new[] { "pyromancer", "warden", "neutral" })
+            foreach (string cls in new[] { "pyromancer", "warden", "chronomancer", "necromancer", "neutral" })
             {
                 var cards = JsonLoader.LoadCards(cls);
                 Debug.Log($"[GM] {cls} cards: {cards.Count}");
@@ -58,7 +59,15 @@ namespace SpellboundAscent.Core
             _relicPool = JsonLoader.LoadRelics();
 
             _eventPool = JsonLoader.LoadEvents();
-            Debug.Log($"[GM] Total: cards={_cardPool.Count} pools, enemies={_enemyPool.Count}, relics={_relicPool.Count}, events={_eventPool.Count}");
+
+            _potionPool = JsonLoader.LoadPotions();
+            Debug.Log($"[GM] Total: cards={_cardPool.Count} pools, enemies={_enemyPool.Count}, relics={_relicPool.Count}, events={_eventPool.Count}, potions={_potionPool.Count}");
+        }
+
+        public void RestoreRun(RunState run)
+        {
+            CurrentRun = run;
+            OnRunStarted?.Invoke();
         }
 
         public void StartNewRun(string playerClass)
@@ -140,6 +149,20 @@ namespace SpellboundAscent.Core
             return _relicPool.FindAll(r =>
                 (rarity == null || r.rarity == rarity) &&
                 (forClass == null || r.@class == "any" || r.@class == forClass));
+        }
+
+        public PotionData GetRandomPotion(string rarity = null)
+        {
+            var pool = rarity != null
+                ? _potionPool.FindAll(p => p.rarity == rarity)
+                : _potionPool;
+            if (pool.Count == 0) return null;
+            return pool[UnityEngine.Random.Range(0, pool.Count)];
+        }
+
+        public List<PotionData> GetPotionPool()
+        {
+            return _potionPool;
         }
     }
 }

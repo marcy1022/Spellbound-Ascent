@@ -32,12 +32,14 @@ namespace SpellboundAscent.Utils
         public int pyromancer;
         public int warden;
         public int chronomancer;
+        public int necromancer;
 
         public int Get(string className) => className switch
         {
             "pyromancer" => pyromancer,
             "warden" => warden,
             "chronomancer" => chronomancer,
+            "necromancer" => necromancer,
             _ => 75
         };
     }

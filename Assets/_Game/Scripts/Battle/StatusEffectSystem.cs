@@ -28,7 +28,7 @@ namespace SpellboundAscent.Battle
             return effects.TryGetValue(key, out int val) ? val : 0;
         }
 
-        public void TickTurnStart(Dictionary<string, int> effects, string targetName, Action<int> onDamage)
+        public void TickTurnStart(Dictionary<string, int> effects, string targetName, Action<int> onDamage, Action<int> onHeal = null)
         {
             // Thorns: -1 per turn start
             if (effects.TryGetValue(StatusKeys.Thorns, out int thorns) && thorns > 0)
@@ -47,9 +47,21 @@ namespace SpellboundAscent.Battle
                 effects.Remove(StatusKeys.Haste);
                 OnStatusRemoved?.Invoke(targetName, StatusKeys.Haste);
             }
+
+            // Regen: heal = stacks, then -1
+            if (effects.TryGetValue(StatusKeys.Regen, out int regen) && regen > 0)
+            {
+                onHeal?.Invoke(regen);
+                effects[StatusKeys.Regen] = regen - 1;
+                if (effects[StatusKeys.Regen] <= 0)
+                {
+                    effects.Remove(StatusKeys.Regen);
+                    OnStatusRemoved?.Invoke(targetName, StatusKeys.Regen);
+                }
+            }
         }
 
-        public void TickTurnEnd(Dictionary<string, int> effects, string targetName, Action<int> onDamage)
+        public void TickTurnEnd(Dictionary<string, int> effects, string targetName, Action<int> onDamage, bool skipGrowthDecay = false)
         {
             // Burn: damage = stacks, then -1
             if (effects.TryGetValue(StatusKeys.Burn, out int burn) && burn > 0)
@@ -98,6 +110,27 @@ namespace SpellboundAscent.Battle
                     OnStatusRemoved?.Invoke(targetName, StatusKeys.Vulnerable);
                 }
             }
+
+            // Root: -1 per turn end
+            if (effects.TryGetValue(StatusKeys.Root, out int root) && root > 0)
+            {
+                effects[StatusKeys.Root] = root - 1;
+                if (effects[StatusKeys.Root] <= 0)
+                {
+                    effects.Remove(StatusKeys.Root);
+                    OnStatusRemoved?.Invoke(targetName, StatusKeys.Root);
+                }
+            }
+
+            if (!skipGrowthDecay && effects.TryGetValue(StatusKeys.Growth, out int growth) && growth > 0)
+            {
+                effects[StatusKeys.Growth] = growth - 1;
+                if (effects[StatusKeys.Growth] <= 0)
+                {
+                    effects.Remove(StatusKeys.Growth);
+                    OnStatusRemoved?.Invoke(targetName, StatusKeys.Growth);
+                }
+            }
         }
 
         public float GetDamageMultiplier(Dictionary<string, int> attackerStatus, Dictionary<string, int> targetStatus)
@@ -119,6 +152,11 @@ namespace SpellboundAscent.Battle
         {
             float damage = baseDamage + strength;
             damage *= GetDamageMultiplier(attackerStatus, targetStatus);
+
+            // Root: flat damage reduction on attacker
+            if (attackerStatus.TryGetValue(StatusKeys.Root, out int root) && root > 0)
+                damage -= root;
+
             return Math.Max(0, (int)damage);
         }
 
