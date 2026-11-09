@@ -298,5 +298,151 @@
     "effects": [{"type": "applyStrength", "value": 3}],
     "description": "At start of each turn, if HP ≤ 50%, gain 3 Strength.",
     "descriptionKo": "매 턴 시작 시 HP 50% 이하면 힘 3 획득."
+  },
+
+  {
+    "id": "temporal_hourglass",
+    "name": "Temporal Hourglass",
+    "nameKo": "시간의 모래시계",
+    "class": "chronomancer",
+    "rarity": "common",
+    "trigger": "battleStart",
+    "condition": null,
+    "effects": [{"type": "applyHaste", "value": 2}],
+    "description": "At the start of battle, gain 2 Haste.",
+    "descriptionKo": "전투 시작 시 가속 2 획득."
+  },
+  {
+    "id": "echo_pendulum",
+    "name": "Echo Pendulum",
+    "nameKo": "메아리 진자",
+    "class": "chronomancer",
+    "rarity": "uncommon",
+    "trigger": "onExhaust",
+    "condition": null,
+    "effects": [{"type": "draw", "value": 1}],
+    "description": "Whenever a card is exhausted, draw 1 card.",
+    "descriptionKo": "카드 소멸 시 카드 1장 드로우."
+  },
+  {
+    "id": "frozen_moment",
+    "name": "Frozen Moment",
+    "nameKo": "정지된 순간",
+    "class": "chronomancer",
+    "rarity": "uncommon",
+    "trigger": "turnStart",
+    "condition": null,
+    "effects": [{"type": "block", "value": 3}, {"type": "applyHaste", "value": 1}],
+    "description": "At the start of each turn, gain 3 Block and 1 Haste.",
+    "descriptionKo": "매 턴 시작 시 블록 3, 가속 1 획득."
+  },
+  {
+    "id": "paradox_core",
+    "name": "Paradox Core",
+    "nameKo": "역설의 핵",
+    "class": "chronomancer",
+    "rarity": "rare",
+    "trigger": "battleStart",
+    "condition": null,
+    "effects": [{"type": "draw", "value": 3}, {"type": "energy", "value": 1}, {"type": "applyHaste", "value": 1}],
+    "description": "At the start of battle, draw 3 cards, gain 1 Energy and 1 Haste.",
+    "descriptionKo": "전투 시작 시 카드 3장 드로우, 에너지 1, 가속 1 획득."
+  },
+  {
+    "id": "time_dilation_orb",
+    "name": "Time Dilation Orb",
+    "nameKo": "시간 왜곡 구슬",
+    "class": "chronomancer",
+    "rarity": "rare",
+    "trigger": "turnStart",
+    "condition": null,
+    "effects": [{"type": "energy", "value": 1}, {"type": "draw", "value": 1}],
+    "description": "At the start of each turn, gain 1 Energy and draw 1 card.",
+    "descriptionKo": "매 턴 시작 시 에너지 1, 카드 1장 드로우."
+  },
+  {
+    "id": "chronal_infinity",
+    "name": "Chronal Infinity",
+    "nameKo": "시간의 무한",
+    "class": "chronomancer",
+    "rarity": "rare",
+    "trigger": "passive",
+    "condition": null,
+    "effects": [],
+    "description": "Haste no longer decays at end of turn.",
+    "descriptionKo": "가속이 턴 종료 시 감소하지 않음."
+  },
+
+  {
+    "id": "soul_lantern",
+    "name": "Soul Lantern",
+    "nameKo": "영혼 등불",
+    "class": "necromancer",
+    "rarity": "common",
+    "trigger": "battleStart",
+    "condition": null,
+    "effects": [{"type": "applyRegen", "value": 2}],
+    "description": "At the start of battle, gain 2 Regen.",
+    "descriptionKo": "전투 시작 시 재생 2 획득."
+  },
+  {
+    "id": "bone_talisman",
+    "name": "Bone Talisman",
+    "nameKo": "뼈의 부적",
+    "class": "necromancer",
+    "rarity": "uncommon",
+    "trigger": "onKill",
+    "condition": null,
+    "effects": [{"type": "heal", "value": 3}, {"type": "draw", "value": 1}],
+    "description": "Whenever an enemy dies, heal 3 HP and draw 1 card.",
+    "descriptionKo": "적 처치 시 HP 3 회복, 카드 1장 드로우."
+  },
+  {
+    "id": "vampiric_fang",
+    "name": "Vampiric Fang",
+    "nameKo": "흡혈의 송곳니",
+    "class": "necromancer",
+    "rarity": "uncommon",
+    "trigger": "onCardPlayed",
+    "condition": null,
+    "effects": [{"type": "heal", "value": 1}],
+    "description": "Whenever you play a card, heal 1 HP.",
+    "descriptionKo": "카드 사용 시 HP 1 회복."
+  },
+  {
+    "id": "plague_censer",
+    "name": "Plague Censer",
+    "nameKo": "역병의 향로",
+    "class": "necromancer",
+    "rarity": "rare",
+    "trigger": "turnStart",
+    "condition": null,
+    "effects": [{"type": "applyPoison", "value": 2}],
+    "description": "At the start of each turn, apply 2 Poison to ALL enemies.",
+    "descriptionKo": "매 턴 시작 시 모든 적에게 독 2 부여."
+  },
+  {
+    "id": "death_embrace",
+    "name": "Death's Embrace",
+    "nameKo": "죽음의 포옹",
+    "class": "necromancer",
+    "rarity": "rare",
+    "trigger": "turnStart",
+    "condition": {"type": "hpBelow", "value": 50},
+    "effects": [{"type": "applyStrength", "value": 2}, {"type": "applyRegen", "value": 1}],
+    "description": "At start of each turn, if HP ≤ 50%, gain 2 Strength and 1 Regen.",
+    "descriptionKo": "매 턴 시작 시 HP 50% 이하면 힘 2, 재생 1 획득."
+  },
+  {
+    "id": "necrotic_heart",
+    "name": "Necrotic Heart",
+    "nameKo": "사령의 심장",
+    "class": "necromancer",
+    "rarity": "rare",
+    "trigger": "onExhaust",
+    "condition": null,
+    "effects": [{"type": "heal", "value": 3}, {"type": "applyStrength", "value": 1}],
+    "description": "Whenever a card is exhausted, heal 3 HP and gain 1 Strength.",
+    "descriptionKo": "카드 소멸 시 HP 3 회복, 힘 1 획득."
   }
 ]

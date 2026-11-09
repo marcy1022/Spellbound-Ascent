@@ -92,13 +92,15 @@ namespace SpellboundAscent.Battle
 
             PlayerState.ResetEnergy();
 
+            int extraDraw = _statusSystem.GetStatus(PlayerState.StatusEffects, StatusKeys.Haste);
+
+            bool keepHaste = HasRelic("chronal_infinity");
             _statusSystem.TickTurnStart(PlayerState.StatusEffects, "Player", null, heal =>
             {
                 PlayerState.Heal(heal);
                 GameManager.Instance.CurrentRun.currentHp = PlayerState.CurrentHp;
-            });
+            }, keepHaste);
 
-            int extraDraw = _statusSystem.GetStatus(PlayerState.StatusEffects, StatusKeys.Haste);
             int drawCount = GameManager.Instance.Balance.draw.basePerTurn + extraDraw;
             Deck.DrawCards(drawCount);
 
@@ -323,6 +325,16 @@ namespace SpellboundAscent.Battle
                             break;
                         case "applyRegen":
                             _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Regen, value, "Player");
+                            break;
+                        case "applyHaste":
+                            _statusSystem.ApplyStatus(PlayerState.StatusEffects, StatusKeys.Haste, value, "Player");
+                            break;
+                        case "applyPoison":
+                            foreach (var enemy in Enemies)
+                            {
+                                if (!enemy.IsDead)
+                                    _statusSystem.ApplyStatus(enemy.StatusEffects, StatusKeys.Poison, value, enemy.DisplayName);
+                            }
                             break;
                         case "damageAllEnemies":
                             foreach (var enemy in Enemies)

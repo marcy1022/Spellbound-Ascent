@@ -28,7 +28,7 @@ namespace SpellboundAscent.Battle
             return effects.TryGetValue(key, out int val) ? val : 0;
         }
 
-        public void TickTurnStart(Dictionary<string, int> effects, string targetName, Action<int> onDamage, Action<int> onHeal = null)
+        public void TickTurnStart(Dictionary<string, int> effects, string targetName, Action<int> onDamage, Action<int> onHeal = null, bool skipHasteDecay = false)
         {
             // Thorns: -1 per turn start
             if (effects.TryGetValue(StatusKeys.Thorns, out int thorns) && thorns > 0)
@@ -41,8 +41,8 @@ namespace SpellboundAscent.Battle
                 }
             }
 
-            // Haste: draw extra cards, then remove all
-            if (effects.TryGetValue(StatusKeys.Haste, out int haste) && haste > 0)
+            // Haste: draw extra cards, then remove all (unless chronal_infinity)
+            if (!skipHasteDecay && effects.TryGetValue(StatusKeys.Haste, out int haste) && haste > 0)
             {
                 effects.Remove(StatusKeys.Haste);
                 OnStatusRemoved?.Invoke(targetName, StatusKeys.Haste);
