@@ -226,10 +226,29 @@ namespace SpellboundAscent.UI
                 outline.effectColor = borderColor;
                 outline.effectDistance = new Vector2(2, -2);
 
+                float textLeft = 0.04f;
+                var relicSprite = SpriteManager.GetRelic(relic.id);
+                if (relicSprite != null)
+                {
+                    var iconBgRT = MakeRect(relicRT, "IconBg",
+                        new Vector2(0.02f, 0.15f), new Vector2(0.18f, 0.92f), Vector2.zero, Vector2.zero);
+                    var iconBgImg = iconBgRT.gameObject.AddComponent<Image>();
+                    iconBgImg.color = new Color(0, 0, 0, 0.3f);
+                    iconBgImg.raycastTarget = false;
+
+                    var iconRT = MakeRect(relicRT, "Icon",
+                        new Vector2(0.03f, 0.2f), new Vector2(0.17f, 0.88f), Vector2.zero, Vector2.zero);
+                    var iconImg = iconRT.gameObject.AddComponent<Image>();
+                    iconImg.sprite = relicSprite;
+                    iconImg.preserveAspect = true;
+                    iconImg.raycastTarget = false;
+                    textLeft = 0.19f;
+                }
+
                 // Name
                 string name = !string.IsNullOrEmpty(relic.nameKo) ? relic.nameKo : relic.name;
                 var nameT = MakeTMP(relicRT, "Name", name,
-                    new Vector2(0.04f, 0.72f), new Vector2(0.96f, 0.97f), 21, Color.white);
+                    new Vector2(textLeft, 0.72f), new Vector2(0.96f, 0.97f), 21, Color.white);
                 nameT.fontStyle = FontStyles.Bold;
 
                 // Tags (rarity + class + trigger)
@@ -248,14 +267,14 @@ namespace SpellboundAscent.UI
                     _ => new Color(0.55f, 0.55f, 0.55f)
                 };
                 MakeTMP(relicRT, "Tags", $"{rarityKo} · {classKo} · {triggerKo}",
-                    new Vector2(0.04f, 0.58f), new Vector2(0.96f, 0.73f), 15, tagColor);
+                    new Vector2(textLeft, 0.58f), new Vector2(0.96f, 0.73f), 15, tagColor);
 
                 // Description
                 string desc = !string.IsNullOrEmpty(relic.descriptionKo) ? relic.descriptionKo : relic.description;
                 if (string.IsNullOrEmpty(desc))
                     desc = CardInstance.BuildEffectDesc(relic.effects, false, true);
                 var descT = MakeTMP(relicRT, "Desc", desc,
-                    new Vector2(0.04f, 0.2f), new Vector2(0.96f, 0.58f), 17,
+                    new Vector2(textLeft, 0.2f), new Vector2(0.96f, 0.58f), 17,
                     new Color(0.8f, 0.8f, 0.8f));
                 descT.alignment = TextAlignmentOptions.TopLeft;
 
@@ -270,7 +289,7 @@ namespace SpellboundAscent.UI
                         _ => $"{relic.condition.type}: {relic.condition.value}"
                     };
                     MakeTMP(relicRT, "Cond", $"조건: {condStr}",
-                        new Vector2(0.04f, 0.03f), new Vector2(0.96f, 0.2f), 14,
+                        new Vector2(textLeft, 0.03f), new Vector2(0.96f, 0.2f), 14,
                         new Color(1f, 0.7f, 0.3f));
                 }
 
@@ -278,7 +297,7 @@ namespace SpellboundAscent.UI
                 if (!string.IsNullOrEmpty(relic.flavorText) && relic.condition == null)
                 {
                     MakeTMP(relicRT, "Flavor", $"\"{relic.flavorText}\"",
-                        new Vector2(0.04f, 0.03f), new Vector2(0.96f, 0.2f), 13,
+                        new Vector2(textLeft, 0.03f), new Vector2(0.96f, 0.2f), 13,
                         new Color(0.45f, 0.45f, 0.5f));
                 }
             }
@@ -313,8 +332,9 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = size;
+            tmp.fontSize = Mathf.Max(size, 16);
             tmp.color = color;
+            tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.raycastTarget = false;
             FontManager.ApplyTo(tmp);

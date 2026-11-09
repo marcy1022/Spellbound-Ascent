@@ -8,17 +8,23 @@ namespace SpellboundAscent.UI
     public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
     {
         public int HandIndex { get; set; }
+        public Vector2 RestPosition { get; set; }
+        public Quaternion RestRotation { get; set; }
+        public int RestSiblingIndex { get; set; }
+        public RectTransform Visual { get; set; }
+
         public Action<CardDragHandler> OnDragStarted;
         public Action<CardDragHandler, PointerEventData> OnDragging;
         public Action<CardDragHandler, PointerEventData> OnDragEnded;
 
         RectTransform _rt;
-        Vector2 _originalAnchorMin;
-        Vector2 _originalAnchorMax;
-        Vector2 _originalSize;
         CanvasGroup _canvasGroup;
         Image _highlight;
         bool _isDragging;
+        Vector2 _dragOffset;
+
+        const float HoverRaise = 80f;
+        const float HoverScale = 1.3f;
 
         void Awake()
         {
@@ -28,19 +34,43 @@ namespace SpellboundAscent.UI
                 _canvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
 
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (_isDragging) return;
+            _rt.SetAsLastSibling();
+            if (Visual != null)
+            {
+                Visual.anchoredPosition = new Vector2(0, HoverRaise);
+                Visual.localScale = Vector3.one * HoverScale;
+                Visual.localRotation = Quaternion.Inverse(_rt.localRotation);
+                var vc = Visual.GetComponent<Canvas>();
+                if (vc == null) vc = Visual.gameObject.AddComponent<Canvas>();
+                vc.overrideSorting = true;
+                vc.sortingOrder = 25;
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (_isDragging) return;
+            _rt.SetSiblingIndex(RestSiblingIndex);
+            ResetVisual();
+        }
+
         public void OnBeginDrag(PointerEventData eventData)
         {
             _isDragging = true;
-            _originalAnchorMin = _rt.anchorMin;
-            _originalAnchorMax = _rt.anchorMax;
-            _originalSize = new Vector2(_rt.rect.width, _rt.rect.height);
+            ResetVisual();
 
-            _rt.SetAsLastSibling();
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _rt.parent as RectTransform, eventData.position, eventData.pressEventCamera, out Vector2 localPoint);
+            _dragOffset = _rt.anchoredPosition - localPoint;
+
             _canvasGroup.blocksRaycasts = false;
-
+            _rt.SetAsLastSibling();
+            _rt.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one * 1.05f;
             ShowHighlight(true);
-
             OnDragStarted?.Invoke(this);
         }
 
@@ -48,13 +78,9 @@ namespace SpellboundAscent.UI
         {
             if (!_isDragging) return;
 
-            _rt.anchorMin = new Vector2(0.5f, 0.5f);
-            _rt.anchorMax = new Vector2(0.5f, 0.5f);
-            _rt.sizeDelta = _originalSize;
-
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 _rt.parent as RectTransform, eventData.position, eventData.pressEventCamera, out Vector2 localPoint);
-            _rt.anchoredPosition = localPoint;
+            _rt.anchoredPosition = localPoint + _dragOffset;
 
             OnDragging?.Invoke(this, eventData);
         }
@@ -65,30 +91,29 @@ namespace SpellboundAscent.UI
             _canvasGroup.blocksRaycasts = true;
             transform.localScale = Vector3.one;
             ShowHighlight(false);
-
             OnDragEnded?.Invoke(this, eventData);
         }
 
         public void ReturnToHand()
         {
-            _rt.anchorMin = _originalAnchorMin;
-            _rt.anchorMax = _originalAnchorMax;
-            _rt.anchoredPosition = Vector2.zero;
-            _rt.sizeDelta = Vector2.zero;
+            _isDragging = false;
+            _canvasGroup.blocksRaycasts = true;
+            _rt.SetSiblingIndex(RestSiblingIndex);
+            _rt.localRotation = RestRotation;
+            _rt.anchoredPosition = RestPosition;
             transform.localScale = Vector3.one;
+            ResetVisual();
             ShowHighlight(false);
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
+        void ResetVisual()
         {
-            if (!_isDragging)
-                transform.localScale = Vector3.one * 1.05f;
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            if (!_isDragging)
-                transform.localScale = Vector3.one;
+            if (Visual == null) return;
+            Visual.anchoredPosition = Vector2.zero;
+            Visual.localScale = Vector3.one;
+            Visual.localRotation = Quaternion.identity;
+            var vc = Visual.GetComponent<Canvas>();
+            if (vc != null) vc.overrideSorting = false;
         }
 
         void ShowHighlight(bool show)

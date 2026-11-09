@@ -8,6 +8,8 @@ using TMPro;
 using SpellboundAscent.Card;
 using SpellboundAscent.Map;
 using SpellboundAscent.Core;
+using SpellboundAscent.Relic;
+using SpellboundAscent.Utils;
 
 namespace SpellboundAscent.UI
 {
@@ -79,7 +81,19 @@ namespace SpellboundAscent.UI
         {
             var bg = MakeRect(_root, "Bg", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             var img = bg.gameObject.AddComponent<Image>();
-            img.color = new Color(0.06f, 0.05f, 0.1f);
+            var run = GameManager.Instance.CurrentRun;
+            var bgSprite = SpriteManager.GetBackground(run != null ? run.currentAct : 1);
+            if (bgSprite != null)
+            {
+                img.sprite = bgSprite;
+                img.type = Image.Type.Simple;
+                img.preserveAspect = false;
+                img.color = new Color(0.3f, 0.3f, 0.35f);
+            }
+            else
+            {
+                img.color = new Color(0.06f, 0.05f, 0.1f);
+            }
             img.raycastTarget = false;
         }
 
@@ -89,7 +103,17 @@ namespace SpellboundAscent.UI
             var header = MakeRect(_root, "Header",
                 new Vector2(0, 0.92f), new Vector2(1, 1), Vector2.zero, Vector2.zero);
             var bg = header.gameObject.AddComponent<Image>();
-            bg.color = new Color(0.1f, 0.08f, 0.15f, 0.95f);
+            var titleSprite = SpriteManager.GetUI("title_silver");
+            if (titleSprite != null)
+            {
+                bg.sprite = titleSprite;
+                bg.type = Image.Type.Simple;
+                bg.color = Color.white;
+            }
+            else
+            {
+                bg.color = new Color(0.1f, 0.08f, 0.15f, 0.95f);
+            }
 
             MakeTMP(header, "Title", $"{run.currentAct}막 - 지도",
                 new Vector2(0.02f, 0.1f), new Vector2(0.5f, 0.9f), 36,
@@ -142,6 +166,36 @@ namespace SpellboundAscent.UI
             rcb.onClick.AddListener(() => RelicCodexUI.Show());
             MakeTMP(relCodexBtn, "Txt", "유물",
                 Vector2.zero, Vector2.one, 16, new Color(1f, 0.7f, 0.9f));
+
+            if (run.relics.Count > 0)
+            {
+                var relicBar = MakeRect(_root, "RelicBar",
+                    new Vector2(0.02f, 0.88f), new Vector2(0.98f, 0.92f), Vector2.zero, Vector2.zero);
+                var relicBarBg = relicBar.gameObject.AddComponent<Image>();
+                relicBarBg.color = new Color(0.05f, 0.04f, 0.1f, 0.6f);
+                relicBarBg.raycastTarget = false;
+
+                int relCount = run.relics.Count;
+                float iconW = Mathf.Min(1f / relCount, 0.08f);
+
+                for (int ri = 0; ri < relCount; ri++)
+                {
+                    var rel = run.relics[ri];
+                    float rx0 = ri * iconW;
+                    var rSlot = MakeRect(relicBar, $"Rel_{ri}",
+                        new Vector2(rx0 + 0.002f, 0.05f), new Vector2(rx0 + iconW - 0.002f, 0.95f),
+                        Vector2.zero, Vector2.zero);
+
+                    var rSprite = SpriteManager.GetRelic(rel.id);
+                    if (rSprite != null)
+                    {
+                        var rImg = rSlot.gameObject.AddComponent<Image>();
+                        rImg.sprite = rSprite;
+                        rImg.preserveAspect = true;
+                        rImg.raycastTarget = false;
+                    }
+                }
+            }
         }
 
         void ToggleDeckView()
@@ -201,10 +255,10 @@ namespace SpellboundAscent.UI
             scrollRect.vertical = true;
 
             int cols = 3;
-            float cardW = 320f;
-            float cardH = 200f;
+            float cardW = 220f;
+            float cardH = 308f;
             float padX = 20f;
-            float padY = 10f;
+            float padY = 12f;
 
             int rows = Mathf.CeilToInt(run.deck.Count / (float)cols);
             float totalH = rows * (cardH + padY) + padY;
@@ -227,35 +281,58 @@ namespace SpellboundAscent.UI
                 cardRT.anchoredPosition = new Vector2(x, y);
                 cardRT.sizeDelta = new Vector2(cardW, cardH);
 
-                Color cardColor = card.Data.type switch
+                var mapCardImg = cardRT.gameObject.AddComponent<Image>();
+                var mapFrameSprite = SpriteManager.GetCardFrame(card.Data.type);
+                if (mapFrameSprite != null)
                 {
-                    "attack" => new Color(0.5f, 0.15f, 0.15f, 0.9f),
-                    "skill" => new Color(0.15f, 0.25f, 0.5f, 0.9f),
-                    "power" => new Color(0.35f, 0.15f, 0.5f, 0.9f),
-                    _ => new Color(0.3f, 0.3f, 0.3f, 0.9f)
-                };
-                cardRT.gameObject.AddComponent<Image>().color = cardColor;
+                    mapCardImg.sprite = mapFrameSprite;
+                    mapCardImg.type = Image.Type.Simple;
+                    mapCardImg.color = Color.white;
+                }
+                else
+                {
+                    Color cardColor = card.Data.type switch
+                    {
+                        "attack" => new Color(0.5f, 0.15f, 0.15f, 0.9f),
+                        "skill" => new Color(0.15f, 0.25f, 0.5f, 0.9f),
+                        "power" => new Color(0.35f, 0.15f, 0.5f, 0.9f),
+                        _ => new Color(0.3f, 0.3f, 0.3f, 0.9f)
+                    };
+                    mapCardImg.color = cardColor;
+                }
 
                 string upgStr = card.Upgraded ? " <color=#44ff44>+</color>" : "";
-                MakeTMP(cardRT, "Cost", card.Cost.ToString(),
-                    new Vector2(0, 0.7f), new Vector2(0.2f, 1f), 28,
-                    new Color(1, 0.85f, 0.2f));
+
+                float mapYOff = card.Data.type switch { "skill" => 0.01f, "power" => -0.015f, _ => 0f };
+                var mapGemRT = MakeRect(cardRT, "CostGem",
+                    new Vector2(0.02f, 0.73f + mapYOff), new Vector2(0.35f, 0.95f + mapYOff), Vector2.zero, Vector2.zero);
+                var mapGemImg = mapGemRT.gameObject.AddComponent<Image>();
+                var mapGemSpr = SpriteManager.GetCostGem(card.Cost);
+                if (mapGemSpr != null) { mapGemImg.sprite = mapGemSpr; mapGemImg.color = Color.white; }
+                else { mapGemImg.color = new Color(0.15f, 0.1f, 0.25f, 0.9f); }
+                mapGemImg.raycastTarget = false;
+                var mapCostT = MakeTMP(mapGemRT, "CostNum", card.Cost.ToString(),
+                    Vector2.zero, Vector2.one, 22, Color.white);
+                mapCostT.alignment = TextAlignmentOptions.Center;
+                mapCostT.outlineWidth = 0.3f;
+                mapCostT.outlineColor = Color.black;
 
                 string mCardName = !string.IsNullOrEmpty(card.Data.nameKo) ? card.Data.nameKo : card.Data.name;
                 var mNameT = MakeTMP(cardRT, "Name", mCardName + upgStr,
-                    new Vector2(0.05f, 0.45f), new Vector2(0.95f, 0.7f), 24, Color.white);
+                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 20, Color.white);
                 mNameT.fontStyle = FontStyles.Bold;
 
-                MakeTMP(cardRT, "Desc", card.ActiveDescriptionKo,
-                    new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.45f), 17,
-                    new Color(0.8f, 0.8f, 0.8f));
+                var mDescT = MakeTMP(cardRT, "Desc", card.ActiveDescriptionKo,
+                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.53f), 16,
+                    new Color(0.82f, 0.82f, 0.82f));
+                mDescT.alignment = TextAlignmentOptions.TopLeft;
             }
         }
 
         void BuildScrollArea()
         {
             var scrollContainer = MakeRect(_root, "ScrollContainer",
-                new Vector2(0, 0), new Vector2(1, 0.92f), Vector2.zero, Vector2.zero);
+                new Vector2(0, 0.045f), new Vector2(1, 0.92f), Vector2.zero, Vector2.zero);
 
             var scrollBg = scrollContainer.gameObject.AddComponent<Image>();
             scrollBg.color = new Color(0, 0, 0, 0.01f);
@@ -298,8 +375,9 @@ namespace SpellboundAscent.UI
                     new Vector2(40, y), new Vector2(60, 30));
                 var labelTmp = floorLabel.gameObject.AddComponent<TextMeshProUGUI>();
                 labelTmp.text = $"{displayFloor}";
-                labelTmp.fontSize = 18;
+                labelTmp.fontSize = 20;
                 labelTmp.color = new Color(0.5f, 0.5f, 0.5f);
+                labelTmp.fontStyle = FontStyles.Bold;
                 labelTmp.alignment = TextAlignmentOptions.Center;
                 labelTmp.raycastTarget = false;
 
@@ -316,11 +394,20 @@ namespace SpellboundAscent.UI
                         new Vector2(x, ny), new Vector2(80, 80));
 
                     var img = nodeRT.gameObject.AddComponent<Image>();
-                    img.color = GetNodeColor(node);
-
-                    string icon = GetNodeIcon(node.type);
-                    MakeFixedTMP(nodeRT, "Icon", icon,
-                        new Vector2(0, 4), new Vector2(70, 28), 22, Color.white);
+                    var nodeSprite = SpriteManager.GetMapNode(node.type.ToString());
+                    if (nodeSprite != null)
+                    {
+                        img.sprite = nodeSprite;
+                        img.preserveAspect = true;
+                        img.color = Color.white;
+                    }
+                    else
+                    {
+                        img.color = GetNodeColor(node);
+                        string icon = GetNodeIcon(node.type);
+                        MakeFixedTMP(nodeRT, "Icon", icon,
+                            new Vector2(0, 4), new Vector2(70, 28), 22, Color.white);
+                    }
 
                     MakeFixedTMP(nodeRT, "Type", node.type.ToString(),
                         new Vector2(0, -16), new Vector2(70, 20), 13, new Color(0.85f, 0.85f, 0.85f));
@@ -673,8 +760,9 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = size;
+            tmp.fontSize = Mathf.Max(size, 16);
             tmp.color = color;
+            tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.raycastTarget = false;
             FontManager.ApplyTo(tmp);
@@ -687,8 +775,9 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, size);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = fontSize;
+            tmp.fontSize = Mathf.Max(fontSize, 16);
             tmp.color = color;
+            tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.raycastTarget = false;
             FontManager.ApplyTo(tmp);

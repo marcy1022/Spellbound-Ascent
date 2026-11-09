@@ -8,6 +8,7 @@ using SpellboundAscent.Battle;
 using SpellboundAscent.Card;
 using SpellboundAscent.Enemy;
 using SpellboundAscent.Core;
+using SpellboundAscent.Relic;
 using SpellboundAscent.Utils;
 
 namespace SpellboundAscent.UI
@@ -21,7 +22,7 @@ namespace SpellboundAscent.UI
         Image _playerHpBar;
         TextMeshProUGUI _energyText;
         TextMeshProUGUI _blockText;
-        TextMeshProUGUI _statusText;
+        RectTransform _playerStatusContainer;
 
         RectTransform _enemyArea;
         List<EnemyPanel> _enemyPanels = new();
@@ -35,6 +36,8 @@ namespace SpellboundAscent.UI
         TextMeshProUGUI _masterSkillText;
         List<Button> _potionBtns = new();
         List<TextMeshProUGUI> _potionLabels = new();
+        List<Image> _potionIcons = new();
+        GameObject _potionTooltip;
 
         TextMeshProUGUI _logText;
         List<string> _logLines = new();
@@ -73,6 +76,7 @@ namespace SpellboundAscent.UI
             BuildEndTurnButton();
             BuildMasterSkillButton();
             BuildDeckViewButton();
+            BuildRelicBar();
             BuildDragIndicator();
 
             _playThresholdY = Screen.height * 0.4f;
@@ -120,7 +124,19 @@ namespace SpellboundAscent.UI
         {
             var bg = MakeRect(_root, "Bg", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             var img = bg.gameObject.AddComponent<Image>();
-            img.color = new Color(0.08f, 0.06f, 0.12f);
+            var run = GameManager.Instance.CurrentRun;
+            var bgSprite = SpriteManager.GetBackground(run != null ? run.currentAct : 1);
+            if (bgSprite != null)
+            {
+                img.sprite = bgSprite;
+                img.type = Image.Type.Simple;
+                img.preserveAspect = false;
+                img.color = Color.white;
+            }
+            else
+            {
+                img.color = new Color(0.08f, 0.06f, 0.12f);
+            }
             img.raycastTarget = false;
         }
 
@@ -143,20 +159,53 @@ namespace SpellboundAscent.UI
             var hud = MakeRect(_root, "HUD",
                 new Vector2(0, 0.35f), new Vector2(1, 0.44f), Vector2.zero, Vector2.zero);
             var hudBg = hud.gameObject.AddComponent<Image>();
-            hudBg.color = new Color(0.1f, 0.08f, 0.15f, 0.9f);
+            var panelSprite = SpriteManager.GetUI("panel_medium");
+            if (panelSprite != null)
+            {
+                hudBg.sprite = panelSprite;
+                hudBg.type = Image.Type.Simple;
+                hudBg.color = new Color(1, 1, 1, 0.9f);
+            }
+            else
+            {
+                hudBg.color = new Color(0.1f, 0.08f, 0.15f, 0.9f);
+            }
             hudBg.raycastTarget = false;
 
             var hpBg = MakeRect(hud, "HpBg",
                 new Vector2(0.02f, 0.55f), new Vector2(0.65f, 0.9f), Vector2.zero, Vector2.zero);
-            hpBg.gameObject.AddComponent<Image>().color = new Color(0.3f, 0.1f, 0.1f);
+            var hpBgImg = hpBg.gameObject.AddComponent<Image>();
+            var hpBarSprite = SpriteManager.GetUI("bar_hp");
+            if (hpBarSprite != null)
+            {
+                hpBgImg.sprite = hpBarSprite;
+                hpBgImg.type = Image.Type.Simple;
+                hpBgImg.color = Color.white;
+            }
+            else
+            {
+                hpBgImg.color = new Color(0.3f, 0.1f, 0.1f);
+            }
 
             var hpFill = MakeRect(hpBg, "HpFill", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             _playerHpBar = hpFill.gameObject.AddComponent<Image>();
-            _playerHpBar.color = new Color(0.2f, 0.7f, 0.3f);
+            _playerHpBar.color = new Color(0.2f, 0.7f, 0.3f, 0.8f);
 
             _playerHpText = MakeTMP(hud, "HpTxt", "HP",
                 new Vector2(0.02f, 0.1f), new Vector2(0.35f, 0.55f), 28, Color.white);
             _playerHpText.raycastTarget = false;
+
+            var energyBg = MakeRect(hud, "EnergyBg",
+                new Vector2(0.67f, 0.1f), new Vector2(0.83f, 0.9f), Vector2.zero, Vector2.zero);
+            var energyBarSprite = SpriteManager.GetUI("bar_energy");
+            if (energyBarSprite != null)
+            {
+                var eBgImg = energyBg.gameObject.AddComponent<Image>();
+                eBgImg.sprite = energyBarSprite;
+                eBgImg.type = Image.Type.Simple;
+                eBgImg.color = Color.white;
+                eBgImg.raycastTarget = false;
+            }
 
             _energyText = MakeTMP(hud, "Energy", "0",
                 new Vector2(0.68f, 0.1f), new Vector2(0.82f, 0.9f), 36, new Color(1, 0.85f, 0.2f));
@@ -164,12 +213,11 @@ namespace SpellboundAscent.UI
             _energyText.raycastTarget = false;
 
             _blockText = MakeTMP(hud, "Block", "",
-                new Vector2(0.36f, 0.1f), new Vector2(0.52f, 0.55f), 26, new Color(0.4f, 0.7f, 1f));
+                new Vector2(0.36f, 0.35f), new Vector2(0.52f, 0.55f), 26, new Color(0.4f, 0.7f, 1f));
             _blockText.raycastTarget = false;
 
-            _statusText = MakeTMP(hud, "Status", "",
-                new Vector2(0.53f, 0.1f), new Vector2(0.67f, 0.55f), 20, new Color(0.7f, 0.7f, 1f));
-            _statusText.raycastTarget = false;
+            _playerStatusContainer = MakeRect(hud, "StatusArea",
+                new Vector2(0.02f, 0.0f), new Vector2(0.66f, 0.32f), Vector2.zero, Vector2.zero);
         }
 
         void BuildEndTurnButton()
@@ -252,6 +300,7 @@ namespace SpellboundAscent.UI
         {
             _potionBtns.Clear();
             _potionLabels.Clear();
+            _potionIcons.Clear();
 
             var bar = MakeRect(_root, "PotionBar",
                 new Vector2(0.02f, 0.32f), new Vector2(0.7f, 0.35f), Vector2.zero, Vector2.zero);
@@ -268,7 +317,7 @@ namespace SpellboundAscent.UI
                     new Vector2(x0 + 0.005f, 0.05f), new Vector2(x1 - 0.005f, 0.95f),
                     Vector2.zero, Vector2.zero);
                 var slotImg = slot.gameObject.AddComponent<Image>();
-                slotImg.color = new Color(0.15f, 0.3f, 0.15f, 0.8f);
+                slotImg.color = new Color(0.15f, 0.12f, 0.22f, 0.8f);
 
                 var btn = slot.gameObject.AddComponent<Button>();
                 btn.targetGraphic = slotImg;
@@ -276,13 +325,139 @@ namespace SpellboundAscent.UI
                 int idx = i;
                 btn.onClick.AddListener(() => OnPotionClicked(idx));
 
+                var iconRT = MakeRect(slot, "Ico",
+                    new Vector2(0.02f, 0.0f), new Vector2(0.35f, 1f), Vector2.zero, Vector2.zero);
+                var iconImg = iconRT.gameObject.AddComponent<Image>();
+                iconImg.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+                iconImg.preserveAspect = true;
+                iconImg.raycastTarget = false;
+
                 var label = MakeTMP(slot, "Txt", "비어있음",
-                    Vector2.zero, Vector2.one, 18, new Color(0.5f, 0.5f, 0.5f));
-                label.alignment = TextAlignmentOptions.Center;
+                    new Vector2(0.36f, 0f), new Vector2(0.98f, 1f), 18, new Color(0.5f, 0.5f, 0.5f));
+                label.alignment = TextAlignmentOptions.MidlineLeft;
                 label.raycastTarget = false;
+
+                var trigger = slot.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+                var entryEnter = new UnityEngine.EventSystems.EventTrigger.Entry
+                    { eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter };
+                int capturedIdx = i;
+                entryEnter.callback.AddListener(_ => ShowPotionTooltip(capturedIdx));
+                trigger.triggers.Add(entryEnter);
+
+                var entryExit = new UnityEngine.EventSystems.EventTrigger.Entry
+                    { eventID = UnityEngine.EventSystems.EventTriggerType.PointerExit };
+                entryExit.callback.AddListener(_ => HidePotionTooltip());
+                trigger.triggers.Add(entryExit);
 
                 _potionBtns.Add(btn);
                 _potionLabels.Add(label);
+                _potionIcons.Add(iconImg);
+            }
+        }
+
+        void ShowPotionTooltip(int index)
+        {
+            HidePotionTooltip();
+            var run = GameManager.Instance?.CurrentRun;
+            if (run == null || index >= run.potions.Count) return;
+
+            var pot = run.potions[index];
+            string potName = !string.IsNullOrEmpty(pot.nameKo) ? pot.nameKo : pot.name;
+
+            var effectParts = new List<string>();
+            foreach (var e in pot.effects)
+            {
+                effectParts.Add(e.type switch
+                {
+                    "heal" => $"HP +{(int)e.value}",
+                    "block" => $"방어 +{(int)e.value}",
+                    "damage" => $"피해 {(int)e.value}",
+                    "addStrength" => $"힘 +{(int)e.value}",
+                    "addDexterity" => $"민첩 +{(int)e.value}",
+                    "addEnergy" => $"에너지 +{(int)e.value}",
+                    "draw" => $"카드 {(int)e.value}장 드로우",
+                    "applyPoison" => $"독 {(int)e.value}",
+                    _ => $"{e.type} {(int)e.value}"
+                });
+            }
+
+            _potionTooltip = new GameObject("PotionTip");
+            var tipCanvas = _potionTooltip.AddComponent<Canvas>();
+            tipCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            tipCanvas.sortingOrder = 30;
+            var scaler = _potionTooltip.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1080, 1920);
+            scaler.matchWidthOrHeight = 0.5f;
+            _potionTooltip.AddComponent<GraphicRaycaster>();
+            var tipRoot = _potionTooltip.GetComponent<RectTransform>();
+
+            var popup = MakeRect(tipRoot, "Popup",
+                new Vector2(0.05f, 0.36f), new Vector2(0.75f, 0.44f), Vector2.zero, Vector2.zero);
+            popup.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.08f, 0.15f, 0.95f);
+            popup.gameObject.GetComponent<Image>().raycastTarget = false;
+
+            var nameT = MakeTMP(popup, "Name", potName,
+                new Vector2(0.03f, 0.5f), new Vector2(0.97f, 0.95f), 24, new Color(0.3f, 1f, 0.5f));
+            nameT.alignment = TextAlignmentOptions.MidlineLeft;
+            nameT.raycastTarget = false;
+
+            var descT = MakeTMP(popup, "Desc", string.Join(", ", effectParts),
+                new Vector2(0.03f, 0.05f), new Vector2(0.97f, 0.5f), 20, new Color(0.8f, 0.8f, 0.8f));
+            descT.alignment = TextAlignmentOptions.MidlineLeft;
+            descT.raycastTarget = false;
+        }
+
+        void HidePotionTooltip()
+        {
+            if (_potionTooltip != null)
+            {
+                Destroy(_potionTooltip);
+                _potionTooltip = null;
+            }
+        }
+
+        void BuildRelicBar()
+        {
+            var run = GameManager.Instance?.CurrentRun;
+            if (run == null || run.relics.Count == 0) return;
+
+            var bar = MakeRect(_root, "RelicBar",
+                new Vector2(0.02f, 0.93f), new Vector2(0.98f, 0.995f), Vector2.zero, Vector2.zero);
+            var barBg = bar.gameObject.AddComponent<Image>();
+            barBg.color = new Color(0.05f, 0.04f, 0.1f, 0.6f);
+            barBg.raycastTarget = false;
+
+            int count = run.relics.Count;
+            float iconSize = Mathf.Min(1f / count, 0.12f);
+
+            for (int i = 0; i < count; i++)
+            {
+                var relic = run.relics[i];
+                float x0 = i * iconSize;
+
+                var slotRT = MakeRect(bar, $"Rel_{i}",
+                    new Vector2(x0 + 0.003f, 0.05f), new Vector2(x0 + iconSize - 0.003f, 0.95f),
+                    Vector2.zero, Vector2.zero);
+
+                var sprite = SpriteManager.GetRelic(relic.id);
+                if (sprite != null)
+                {
+                    var iconImg = slotRT.gameObject.AddComponent<Image>();
+                    iconImg.sprite = sprite;
+                    iconImg.preserveAspect = true;
+                    iconImg.raycastTarget = false;
+                }
+                else
+                {
+                    var fallback = slotRT.gameObject.AddComponent<Image>();
+                    fallback.color = new Color(0.3f, 0.2f, 0.4f, 0.7f);
+                    fallback.raycastTarget = false;
+                    string initial = (!string.IsNullOrEmpty(relic.nameKo) ? relic.nameKo : relic.name);
+                    if (initial.Length > 0)
+                        MakeTMP(slotRT, "Ini", initial[..1], Vector2.zero, Vector2.one, 18, Color.white)
+                            .alignment = TextAlignmentOptions.Center;
+                }
             }
         }
 
@@ -329,12 +504,25 @@ namespace SpellboundAscent.UI
                     _potionLabels[i].text = !string.IsNullOrEmpty(pot.nameKo) ? pot.nameKo : pot.name;
                     _potionLabels[i].color = new Color(0.3f, 1f, 0.5f);
                     _potionBtns[i].interactable = true;
+
+                    var potSprite = SpriteManager.GetPotion(pot.id);
+                    if (potSprite != null && i < _potionIcons.Count)
+                    {
+                        _potionIcons[i].sprite = potSprite;
+                        _potionIcons[i].color = Color.white;
+                    }
                 }
                 else
                 {
                     _potionLabels[i].text = "비어있음";
                     _potionLabels[i].color = new Color(0.5f, 0.5f, 0.5f);
                     _potionBtns[i].interactable = false;
+
+                    if (i < _potionIcons.Count)
+                    {
+                        _potionIcons[i].sprite = null;
+                        _potionIcons[i].color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+                    }
                 }
             }
         }
@@ -428,8 +616,8 @@ namespace SpellboundAscent.UI
             string title, List<CardInstance> cards, Color headerBg, Color headerText)
         {
             float headerH = 60f;
-            float cardH = 200f;
-            float cardW = 320f;
+            float cardW = 280f;
+            float cardH = cardW * 1.4f;
             float padX = 20f;
             float padY = 10f;
             int cols = 3;
@@ -480,29 +668,37 @@ namespace SpellboundAscent.UI
                 cardRT.anchoredPosition = new Vector2(cx, cy);
                 cardRT.sizeDelta = new Vector2(cardW, cardH);
 
-                Color cardColor = card.Data.type switch
-                {
-                    "attack" => new Color(0.5f, 0.15f, 0.15f, 0.9f),
-                    "skill" => new Color(0.15f, 0.25f, 0.5f, 0.9f),
-                    "power" => new Color(0.35f, 0.15f, 0.5f, 0.9f),
-                    _ => new Color(0.3f, 0.3f, 0.3f, 0.9f)
-                };
                 var cardImg = cardRT.gameObject.AddComponent<Image>();
-                cardImg.color = cardColor;
+                var deckFrameSprite = SpriteManager.GetCardFrame(card.Data.type);
+                if (deckFrameSprite != null)
+                {
+                    cardImg.sprite = deckFrameSprite;
+                    cardImg.type = Image.Type.Simple;
+                    cardImg.color = Color.white;
+                }
+                else
+                {
+                    Color cardColor = card.Data.type switch
+                    {
+                        "attack" => new Color(0.5f, 0.15f, 0.15f, 0.9f),
+                        "skill" => new Color(0.15f, 0.25f, 0.5f, 0.9f),
+                        "power" => new Color(0.35f, 0.15f, 0.5f, 0.9f),
+                        _ => new Color(0.3f, 0.3f, 0.3f, 0.9f)
+                    };
+                    cardImg.color = cardColor;
+                }
 
                 string upgStr = card.Upgraded ? " <color=#44ff44>+</color>" : "";
-                MakeTMP(cardRT, "Cost", card.Cost.ToString(),
-                    new Vector2(0, 0.7f), new Vector2(0.2f, 1f), 28,
-                    new Color(1, 0.85f, 0.2f)).raycastTarget = false;
+                BuildCostGem(cardRT, card.Cost, true, card.Data.type);
 
                 string cName = !string.IsNullOrEmpty(card.Data.nameKo) ? card.Data.nameKo : card.Data.name;
                 var cNameT = MakeTMP(cardRT, "Name", cName + upgStr,
-                    new Vector2(0.05f, 0.45f), new Vector2(0.95f, 0.7f), 24, Color.white);
+                    new Vector2(0.14f, 0.48f), new Vector2(0.86f, 0.68f), 22, Color.white);
                 cNameT.fontStyle = FontStyles.Bold;
                 cNameT.raycastTarget = false;
 
                 MakeTMP(cardRT, "Desc", card.ActiveDescriptionKo,
-                    new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.45f), 17,
+                    new Vector2(0.14f, 0.08f), new Vector2(0.86f, 0.46f), 16,
                     new Color(0.8f, 0.8f, 0.8f)).raycastTarget = false;
 
                 var btn = cardRT.gameObject.AddComponent<Button>();
@@ -700,33 +896,44 @@ namespace SpellboundAscent.UI
                 dropTarget.OnEnemyHovered = OnEnemyHover;
                 dropTarget.OnEnemyUnhovered = OnEnemyUnhover;
 
+                var enemySprite = SpriteManager.GetEnemy(enemies[i].Data.id, enemies[i].Data.type);
+                if (enemySprite != null)
+                {
+                    var portrait = MakeRect(panel, "Portrait",
+                        new Vector2(0.05f, 0.28f), new Vector2(0.95f, 0.78f), Vector2.zero, Vector2.zero);
+                    var portImg = portrait.gameObject.AddComponent<Image>();
+                    portImg.sprite = enemySprite;
+                    portImg.preserveAspect = true;
+                    portImg.raycastTarget = false;
+                    panelImg.color = new Color(0.08f, 0.06f, 0.12f, 0.6f);
+                }
+
                 Color nameColor = enemies[i].CcImmune ? new Color(1f, 0.75f, 0.3f) : Color.white;
                 string enemyDisplayName = enemies[i].DisplayName;
                 if (enemies[i].CcImmune) enemyDisplayName += " <size=18><color=#ffaa33>[군중제어 면역]</color></size>";
                 MakeTMP(panel, "Name", enemyDisplayName,
-                    new Vector2(0, 0.78f), new Vector2(1, 0.95f), 26, nameColor).raycastTarget = false;
+                    new Vector2(0, 0.82f), new Vector2(1, 0.98f), 26, nameColor).raycastTarget = false;
 
                 var hpBg = MakeRect(panel, "HpBg",
-                    new Vector2(0.05f, 0.68f), new Vector2(0.95f, 0.76f), Vector2.zero, Vector2.zero);
+                    new Vector2(0.05f, 0.18f), new Vector2(0.95f, 0.26f), Vector2.zero, Vector2.zero);
                 hpBg.gameObject.AddComponent<Image>().color = new Color(0.2f, 0.1f, 0.1f);
                 var hpFill = MakeRect(hpBg, "Fill", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
                 var hpImg = hpFill.gameObject.AddComponent<Image>();
                 hpImg.color = new Color(0.8f, 0.2f, 0.2f);
 
                 var hpT = MakeTMP(panel, "Hp", $"{enemies[i].CurrentHp}/{enemies[i].MaxHp}",
-                    new Vector2(0, 0.58f), new Vector2(1, 0.68f), 24, Color.white);
+                    new Vector2(0, 0.08f), new Vector2(1, 0.18f), 24, Color.white);
                 hpT.raycastTarget = false;
                 var intT = MakeTMP(panel, "Intent", "",
-                    new Vector2(0, 0.42f), new Vector2(1, 0.56f), 22, new Color(1, 0.8f, 0.4f));
+                    new Vector2(0.05f, 0.0f), new Vector2(0.5f, 0.08f), 20, new Color(1, 0.8f, 0.4f));
                 intT.raycastTarget = false;
-                var stT = MakeTMP(panel, "St", "",
-                    new Vector2(0, 0.02f), new Vector2(1, 0.4f), 18, new Color(0.7f, 0.7f, 1f));
-                stT.raycastTarget = false;
+                var stContainer = MakeRect(panel, "StatusArea",
+                    new Vector2(0.5f, 0.0f), new Vector2(0.98f, 0.08f), Vector2.zero, Vector2.zero);
 
                 _enemyPanels.Add(new EnemyPanel
                 {
                     root = panel, enemy = enemies[i], hpBar = hpImg,
-                    hpText = hpT, intentText = intT, statusText = stT,
+                    hpText = hpT, intentText = intT, statusContainer = stContainer,
                     panelImage = panelImg
                 });
             }
@@ -751,61 +958,93 @@ namespace SpellboundAscent.UI
             int dex = ps.StatusEffects.TryGetValue(StatusKeys.Dexterity, out int dv) ? dv : 0;
             bool weak = ps.StatusEffects.TryGetValue(StatusKeys.Weak, out int wv) && wv > 0;
 
-            float cw = Mathf.Min(0.22f, 0.96f / cnt);
-            float total = cw * cnt;
-            float sx = (1f - total) / 2f;
+            float cardW = 260f;
+            float cardH = 364f;
+            float maxSpacing = cardW * 0.5f;
+            float spacing = cnt > 1 ? Mathf.Min(maxSpacing, (1040f - cardW) / (cnt - 1)) : 0f;
+            float totalW = spacing * (cnt - 1) + cardW;
+            float startX = (1080f - totalW) / 2f + cardW / 2f;
+
+            float maxAngle = cnt > 2 ? Mathf.Min(2f * cnt, 12f) : 0f;
+            float arcRise = cnt > 2 ? 15f : 0f;
 
             for (int i = 0; i < cnt; i++)
             {
                 var card = deck.Hand[i];
-                float x = sx + i * cw;
 
-                var rt = MakeRect(_handArea, $"C{i}",
-                    new Vector2(x + 0.004f, 0.02f), new Vector2(x + cw - 0.004f, 0.98f),
-                    Vector2.zero, Vector2.zero);
+                float centerX = startX + i * spacing;
+                float norm = cnt > 1 ? (2f * i / (cnt - 1) - 1f) : 0f;
+                float angle = -maxAngle * norm;
+                float rise = arcRise * (1f - norm * norm);
 
-                Color bg = card.Data.type switch
+                // Root: invisible hit area (stays in place for pointer detection)
+                var go = new GameObject($"C{i}", typeof(RectTransform));
+                var rt = go.GetComponent<RectTransform>();
+                rt.SetParent(_handArea, false);
+                rt.anchorMin = Vector2.zero;
+                rt.anchorMax = Vector2.zero;
+                rt.pivot = new Vector2(0.5f, 0f);
+                rt.sizeDelta = new Vector2(cardW, cardH);
+                rt.anchoredPosition = new Vector2(centerX, 10f + rise);
+                rt.localRotation = Quaternion.Euler(0, 0, angle);
+
+                var hitImg = rt.gameObject.AddComponent<Image>();
+                hitImg.color = Color.clear;
+
+                // Visual: child container that moves on hover
+                var visual = MakeRect(rt, "Visual", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+
+                var img = visual.gameObject.AddComponent<Image>();
+                var frameSprite = SpriteManager.GetCardFrame(card.Data.type);
+                if (frameSprite != null)
                 {
-                    "attack" => new Color(0.5f, 0.15f, 0.15f, 0.9f),
-                    "skill" => new Color(0.15f, 0.25f, 0.5f, 0.9f),
-                    "power" => new Color(0.35f, 0.15f, 0.5f, 0.9f),
-                    _ => new Color(0.3f, 0.3f, 0.3f, 0.9f)
-                };
-
-                var img = rt.gameObject.AddComponent<Image>();
-                img.color = bg;
+                    img.sprite = frameSprite;
+                    img.type = Image.Type.Simple;
+                    img.color = Color.white;
+                }
+                else
+                {
+                    img.color = card.Data.type switch
+                    {
+                        "attack" => new Color(0.5f, 0.15f, 0.15f, 0.9f),
+                        "skill" => new Color(0.15f, 0.25f, 0.5f, 0.9f),
+                        "power" => new Color(0.35f, 0.15f, 0.5f, 0.9f),
+                        _ => new Color(0.3f, 0.3f, 0.3f, 0.9f)
+                    };
+                }
+                img.raycastTarget = false;
 
                 bool canPay = ps.Energy >= card.Cost;
 
+                BuildCostGem(visual, card.Cost, canPay, card.Data.type);
+
                 var drag = rt.gameObject.AddComponent<CardDragHandler>();
                 drag.HandIndex = i;
+                drag.Visual = visual;
+                drag.RestPosition = rt.anchoredPosition;
+                drag.RestRotation = rt.localRotation;
+                drag.RestSiblingIndex = rt.GetSiblingIndex();
                 drag.OnDragStarted = OnCardDragStart;
                 drag.OnDragging = OnCardDragging;
                 drag.OnDragEnded = OnCardDragEnd;
 
                 if (!canPay)
                 {
-                    var cg = rt.gameObject.GetComponent<CanvasGroup>();
-                    if (cg == null) cg = rt.gameObject.AddComponent<CanvasGroup>();
+                    var cg = rt.gameObject.GetComponent<CanvasGroup>() ?? rt.gameObject.AddComponent<CanvasGroup>();
                     cg.alpha = 0.5f;
                 }
 
-                var cost = MakeTMP(rt, "Cost", card.Cost.ToString(),
-                    new Vector2(0, 0.82f), new Vector2(0.3f, 1f), 32,
-                    canPay ? new Color(1, 0.85f, 0.2f) : new Color(1, 0.3f, 0.3f));
-                cost.alignment = TextAlignmentOptions.Center;
-                cost.raycastTarget = false;
-
                 string handName = !string.IsNullOrEmpty(card.Data.nameKo) ? card.Data.nameKo : card.Data.name;
-                var nameT = MakeTMP(rt, "Name", handName,
-                    new Vector2(0.05f, 0.55f), new Vector2(0.95f, 0.82f), 24, Color.white);
+                string upgStr = card.Upgraded ? " <color=#44ff44>+</color>" : "";
+                var nameT = MakeTMP(visual, "Name", handName + upgStr,
+                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 22, Color.white);
                 nameT.fontStyle = FontStyles.Bold;
                 nameT.raycastTarget = false;
 
                 string descText = card.GetBattleDescKo(str, dex, weak,
                     ps.StatusEffects, deck.Hand.Count, deck.DiscardPile.Count);
-                var desc = MakeTMP(rt, "Desc", descText,
-                    new Vector2(0.05f, 0.08f), new Vector2(0.95f, 0.55f), 19, new Color(0.85f, 0.85f, 0.85f));
+                var desc = MakeTMP(visual, "Desc", descText,
+                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.53f), 17, new Color(0.85f, 0.85f, 0.85f));
                 desc.alignment = TextAlignmentOptions.TopLeft;
                 desc.raycastTarget = false;
 
@@ -984,7 +1223,7 @@ namespace SpellboundAscent.UI
             _energyText.text = $"{ps.Energy}/{ps.MaxEnergy}";
             _blockText.text = ps.Block > 0 ? $"방어 {ps.Block}" : "";
 
-            _statusText.text = FormatStatus(ps.StatusEffects);
+            RebuildStatusIcons(_playerStatusContainer, ps.StatusEffects, false);
         }
 
         void RefreshEnemies()
@@ -1004,38 +1243,147 @@ namespace SpellboundAscent.UI
                 p.enemy.PatternIndex = savedIdx;
                 if (move != null) p.intentText.text = IntentStr(move, p.enemy.StatScale);
 
-                p.statusText.text = FormatStatus(p.enemy.StatusEffects);
+                RebuildStatusIcons(p.statusContainer, p.enemy.StatusEffects, false);
             }
         }
 
         // ======================== HELPERS ========================
 
-        string FormatStatus(Dictionary<string, int> effects)
+        void RebuildStatusIcons(RectTransform container, Dictionary<string, int> effects, bool vertical)
         {
-            var parts = new List<string>();
+            if (container == null) return;
+            foreach (Transform child in container)
+                Destroy(child.gameObject);
+
+            var active = new List<KeyValuePair<string, int>>();
             foreach (var kv in effects)
+                if (kv.Value > 0)
+                    active.Add(kv);
+
+            if (active.Count == 0) return;
+
+            if (vertical)
             {
-                if (kv.Value <= 0) continue;
-                string label = kv.Key switch
+                float slotH = 1f / Mathf.Max(active.Count, 1);
+                for (int i = 0; i < active.Count; i++)
                 {
-                    "burn" => $"<color=#ff6633>화상 {kv.Value}</color>",
-                    "poison" => $"<color=#33cc33>독 {kv.Value}</color>",
-                    "weak" => $"<color=#cc99ff>약화 {kv.Value}</color>",
-                    "vulnerable" => $"<color=#ff9944>취약 {kv.Value}</color>",
-                    "strength" => $"<color=#ff4444>힘+{kv.Value}</color>",
-                    "dexterity" => $"<color=#4488ff>민첩+{kv.Value}</color>",
-                    "thorns" => $"<color=#88aaff>가시 {kv.Value}</color>",
-                    "haste" => $"<color=#44ffcc>신속 {kv.Value}</color>",
-                    "ember" => $"<color=#ff8800>잔불 {kv.Value}</color>",
-                    "combustion" => $"<color=#ff4400>연소</color>",
-                    "growth" => $"<color=#22cc44>성장 {kv.Value}</color>",
-                    "regen" => $"<color=#44ff88>재생 {kv.Value}</color>",
-                    "root" => $"<color=#886622>속박 {kv.Value}</color>",
-                    _ => $"{kv.Key} {kv.Value}"
-                };
-                parts.Add(label);
+                    float yMax = 1f - i * slotH;
+                    float yMin = yMax - slotH;
+                    var slot = MakeRect(container, $"S{i}",
+                        new Vector2(0, yMin), new Vector2(1, yMax), Vector2.zero, Vector2.zero);
+
+                    var sprite = SpriteManager.GetStatusEffect(active[i].Key);
+                    if (sprite != null)
+                    {
+                        var iconRT = MakeRect(slot, "Ico",
+                            new Vector2(0, 0.05f), new Vector2(0.5f, 0.95f), Vector2.zero, Vector2.zero);
+                        var iconImg = iconRT.gameObject.AddComponent<Image>();
+                        iconImg.sprite = sprite;
+                        iconImg.preserveAspect = true;
+                        iconImg.raycastTarget = false;
+                    }
+
+                    var valT = MakeTMP(slot, "Val", active[i].Value.ToString(),
+                        new Vector2(0.5f, 0), new Vector2(1, 1), 16, GetStatusColor(active[i].Key));
+                    valT.alignment = TextAlignmentOptions.Center;
+                }
             }
-            return string.Join("\n", parts);
+            else
+            {
+                float slotW = 1f / Mathf.Max(active.Count, 1);
+                float maxSlotW = 1f / 3f;
+                slotW = Mathf.Min(slotW, maxSlotW);
+                for (int i = 0; i < active.Count; i++)
+                {
+                    float x = i * slotW;
+                    var slot = MakeRect(container, $"S{i}",
+                        new Vector2(x, 0), new Vector2(x + slotW, 1), Vector2.zero, Vector2.zero);
+
+                    var sprite = SpriteManager.GetStatusEffect(active[i].Key);
+                    if (sprite != null)
+                    {
+                        var iconRT = MakeRect(slot, "Ico",
+                            new Vector2(0, 0.05f), new Vector2(0.3f, 0.95f), Vector2.zero, Vector2.zero);
+                        var iconImg = iconRT.gameObject.AddComponent<Image>();
+                        iconImg.sprite = sprite;
+                        iconImg.preserveAspect = true;
+                        iconImg.raycastTarget = false;
+                    }
+
+                    string statusName = GetStatusNameKo(active[i].Key);
+                    var color = GetStatusColor(active[i].Key);
+
+                    var nameT = MakeTMP(slot, "Name", statusName,
+                        new Vector2(0.32f, 0.5f), new Vector2(0.95f, 1f), 16, color);
+                    nameT.alignment = TextAlignmentOptions.BottomLeft;
+                    nameT.raycastTarget = false;
+
+                    var valT = MakeTMP(slot, "Val", active[i].Value.ToString(),
+                        new Vector2(0.32f, 0f), new Vector2(0.95f, 0.5f), 22, color);
+                    valT.alignment = TextAlignmentOptions.TopLeft;
+                    valT.raycastTarget = false;
+                }
+            }
+        }
+
+        string GetStatusNameKo(string key) => key switch
+        {
+            "weak" => "약화",
+            "vulnerable" => "취약",
+            "burn" => "화상",
+            "poison" => "독",
+            "strength" => "힘",
+            "dexterity" => "민첩",
+            "thorns" => "가시",
+            "haste" => "가속",
+            "ember" => "잔불",
+            "combustion" => "연소",
+            "growth" => "성장",
+            "regen" => "재생",
+            "root" => "뿌리",
+            _ => key
+        };
+
+        Color GetStatusColor(string key) => key switch
+        {
+            "burn" => new Color(1f, 0.4f, 0.2f),
+            "poison" => new Color(0.2f, 0.8f, 0.2f),
+            "weak" => new Color(0.8f, 0.6f, 1f),
+            "vulnerable" => new Color(1f, 0.6f, 0.27f),
+            "strength" => new Color(1f, 0.27f, 0.27f),
+            "dexterity" => new Color(0.27f, 0.53f, 1f),
+            "thorns" => new Color(0.53f, 0.67f, 1f),
+            "haste" => new Color(0.27f, 1f, 0.8f),
+            "ember" => new Color(1f, 0.53f, 0f),
+            "combustion" => new Color(1f, 0.27f, 0f),
+            "growth" => new Color(0.13f, 0.8f, 0.27f),
+            "regen" => new Color(0.27f, 1f, 0.53f),
+            "root" => new Color(0.53f, 0.4f, 0.13f),
+            _ => new Color(0.7f, 0.7f, 1f)
+        };
+
+        void BuildCostGem(RectTransform parent, int cost, bool canPay, string cardType = "attack")
+        {
+            float yOff = cardType switch { "skill" => 0.01f, "power" => -0.015f, _ => 0f };
+            var gemRT = MakeRect(parent, "CostGem",
+                new Vector2(0.02f, 0.73f + yOff), new Vector2(0.35f, 0.95f + yOff), Vector2.zero, Vector2.zero);
+
+            var gemSprite = SpriteManager.GetCostGem(cost);
+            if (gemSprite != null)
+            {
+                var gemImg = gemRT.gameObject.AddComponent<Image>();
+                gemImg.sprite = gemSprite;
+                gemImg.raycastTarget = false;
+                if (!canPay) gemImg.color = new Color(0.6f, 0.3f, 0.3f);
+            }
+
+            var costT = MakeTMP(gemRT, "CostNum", cost.ToString(),
+                Vector2.zero, Vector2.one, 26,
+                canPay ? Color.white : new Color(1, 0.3f, 0.3f));
+            costT.alignment = TextAlignmentOptions.Center;
+            costT.outlineWidth = 0.3f;
+            costT.outlineColor = Color.black;
+            costT.raycastTarget = false;
         }
 
         void AddLog(string msg)
@@ -1090,8 +1438,9 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = size;
+            tmp.fontSize = Mathf.Max(size, 16);
             tmp.color = color;
+            tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
             FontManager.ApplyTo(tmp);
             return tmp;
@@ -1103,7 +1452,8 @@ namespace SpellboundAscent.UI
             public EnemyInstance enemy;
             public Image hpBar;
             public Image panelImage;
-            public TextMeshProUGUI hpText, intentText, statusText;
+            public TextMeshProUGUI hpText, intentText;
+            public RectTransform statusContainer;
         }
 
         class CardButton

@@ -6,6 +6,8 @@ using TMPro;
 using SpellboundAscent.Battle;
 using SpellboundAscent.Card;
 using SpellboundAscent.Core;
+using SpellboundAscent.Relic;
+using SpellboundAscent.Utils;
 
 namespace SpellboundAscent.UI
 {
@@ -23,6 +25,7 @@ namespace SpellboundAscent.UI
         Button _confirmBtn;
         TextMeshProUGUI _confirmText;
         TextMeshProUGUI _selectionLabel;
+        RectTransform _tooltipPanel;
 
         public void ShowReward(RewardManager.BattleReward reward)
         {
@@ -46,7 +49,25 @@ namespace SpellboundAscent.UI
                 if (run.AddPotion(reward.potion))
                 {
                     string potName = !string.IsNullOrEmpty(reward.potion.nameKo) ? reward.potion.nameKo : reward.potion.name;
-                    MakeRewardRow(y, $"포션: {potName}", new Color(0.3f, 0.9f, 0.4f));
+                    var potRow = MakeRewardRow(y, $"       {potName}", new Color(0.3f, 0.9f, 0.4f));
+                    var potSprite = SpriteManager.GetPotion(reward.potion.id);
+                    if (potSprite != null)
+                    {
+                        var potIcon = MakeRect(potRow, "Icon",
+                            new Vector2(0.02f, 0.1f), new Vector2(0.12f, 0.9f), Vector2.zero, Vector2.zero);
+                        var potImg = potIcon.gameObject.AddComponent<Image>();
+                        potImg.sprite = potSprite;
+                        potImg.preserveAspect = true;
+                        potImg.raycastTarget = false;
+                    }
+                    potRow.GetComponent<Image>().raycastTarget = true;
+                    var potBtn = potRow.gameObject.AddComponent<Button>();
+                    potBtn.targetGraphic = potRow.GetComponent<Image>();
+                    var capturedPotion = reward.potion;
+                    potBtn.onClick.AddListener(() => ShowPotionTooltip(capturedPotion));
+                    MakeTMP(potRow, "Hint", "ⓘ",
+                        new Vector2(0.9f, 0), new Vector2(1f, 1), 22,
+                        new Color(0.5f, 0.8f, 0.5f)).alignment = TextAlignmentOptions.Center;
                     y -= 0.08f;
                 }
             }
@@ -54,7 +75,25 @@ namespace SpellboundAscent.UI
             if (reward.relic != null)
             {
                 string relName = !string.IsNullOrEmpty(reward.relic.nameKo) ? reward.relic.nameKo : reward.relic.name;
-                MakeRewardRow(y, $"유물: {relName}", new Color(0.8f, 0.6f, 1f));
+                var relRow = MakeRewardRow(y, $"       {relName}", new Color(0.8f, 0.6f, 1f));
+                var relSprite = SpriteManager.GetRelic(reward.relic.id);
+                if (relSprite != null)
+                {
+                    var relIcon = MakeRect(relRow, "Icon",
+                        new Vector2(0.02f, 0.1f), new Vector2(0.12f, 0.9f), Vector2.zero, Vector2.zero);
+                    var relImg = relIcon.gameObject.AddComponent<Image>();
+                    relImg.sprite = relSprite;
+                    relImg.preserveAspect = true;
+                    relImg.raycastTarget = false;
+                }
+                relRow.GetComponent<Image>().raycastTarget = true;
+                var relBtn = relRow.gameObject.AddComponent<Button>();
+                relBtn.targetGraphic = relRow.GetComponent<Image>();
+                var capturedRelic = reward.relic;
+                relBtn.onClick.AddListener(() => ShowRelicTooltip(capturedRelic));
+                MakeTMP(relRow, "Hint", "ⓘ",
+                    new Vector2(0.9f, 0), new Vector2(1f, 1), 22,
+                    new Color(0.7f, 0.5f, 1f)).alignment = TextAlignmentOptions.Center;
                 y -= 0.08f;
             }
 
@@ -95,16 +134,27 @@ namespace SpellboundAscent.UI
                     new Vector2(x + 0.01f, 0.02f), new Vector2(x + cw - 0.01f, 0.98f),
                     Vector2.zero, Vector2.zero);
 
-                Color bg = card.type switch
-                {
-                    "attack" => new Color(0.5f, 0.15f, 0.15f, 0.95f),
-                    "skill" => new Color(0.15f, 0.25f, 0.5f, 0.95f),
-                    "power" => new Color(0.35f, 0.15f, 0.5f, 0.95f),
-                    _ => new Color(0.3f, 0.3f, 0.3f, 0.95f)
-                };
-
                 var img = cardRT.gameObject.AddComponent<Image>();
-                img.color = bg;
+                var rwdFrameSprite = SpriteManager.GetCardFrame(card.type);
+                Color bg;
+                if (rwdFrameSprite != null)
+                {
+                    img.sprite = rwdFrameSprite;
+                    img.type = Image.Type.Simple;
+                    img.color = Color.white;
+                    bg = Color.white;
+                }
+                else
+                {
+                    bg = card.type switch
+                    {
+                        "attack" => new Color(0.5f, 0.15f, 0.15f, 0.95f),
+                        "skill" => new Color(0.15f, 0.25f, 0.5f, 0.95f),
+                        "power" => new Color(0.35f, 0.15f, 0.5f, 0.95f),
+                        _ => new Color(0.3f, 0.3f, 0.3f, 0.95f)
+                    };
+                    img.color = bg;
+                }
                 _cardImages.Add(img);
                 _cardBaseColors.Add(bg);
 
@@ -113,9 +163,19 @@ namespace SpellboundAscent.UI
                 int idx = i;
                 btn.onClick.AddListener(() => OnCardClicked(idx));
 
-                MakeTMP(cardRT, "Cost", card.cost.ToString(),
-                    new Vector2(0, 0.88f), new Vector2(0.25f, 1f), 32,
-                    new Color(1, 0.85f, 0.2f)).alignment = TextAlignmentOptions.Center;
+                float rwdYOff = card.type switch { "skill" => 0.01f, "power" => -0.015f, _ => 0f };
+                var rwdGemRT = MakeRect(cardRT, "CostGem",
+                    new Vector2(0.02f, 0.73f + rwdYOff), new Vector2(0.35f, 0.95f + rwdYOff), Vector2.zero, Vector2.zero);
+                var rwdGemImg = rwdGemRT.gameObject.AddComponent<Image>();
+                var rwdGemSprite = SpriteManager.GetCostGem(card.cost);
+                if (rwdGemSprite != null) { rwdGemImg.sprite = rwdGemSprite; rwdGemImg.color = Color.white; }
+                else { rwdGemImg.color = new Color(0.15f, 0.1f, 0.25f, 0.9f); }
+                rwdGemImg.raycastTarget = false;
+                var rwdCostT = MakeTMP(rwdGemRT, "CostNum", card.cost.ToString(),
+                    Vector2.zero, Vector2.one, 26, Color.white);
+                rwdCostT.alignment = TextAlignmentOptions.Center;
+                rwdCostT.outlineWidth = 0.3f;
+                rwdCostT.outlineColor = Color.black;
 
                 var rarityColor = card.rarity switch
                 {
@@ -124,24 +184,29 @@ namespace SpellboundAscent.UI
                     _ => Color.white
                 };
                 string rarityKo = card.rarity switch { "common" => "일반", "uncommon" => "고급", "rare" => "희귀", _ => card.rarity };
-                MakeTMP(cardRT, "Rarity", rarityKo,
-                    new Vector2(0.3f, 0.88f), new Vector2(1f, 1f), 18, rarityColor);
+                var rarityT = MakeTMP(cardRT, "Rarity", rarityKo,
+                    new Vector2(0.7f, 0.88f), new Vector2(0.98f, 0.96f), 18, rarityColor);
+                rarityT.alignment = TextAlignmentOptions.MidlineRight;
+                rarityT.raycastTarget = false;
 
                 string rCardName = !string.IsNullOrEmpty(card.nameKo) ? card.nameKo : card.name;
                 var rNameT = MakeTMP(cardRT, "Name", rCardName,
-                    new Vector2(0.05f, 0.62f), new Vector2(0.95f, 0.88f), 28, Color.white);
+                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 28, Color.white);
                 rNameT.fontStyle = FontStyles.Bold;
+                rNameT.raycastTarget = false;
 
                 string typeKo = card.type switch { "attack" => "공격", "skill" => "스킬", "power" => "파워", _ => card.type };
-                MakeTMP(cardRT, "Type", typeKo,
-                    new Vector2(0.05f, 0.54f), new Vector2(0.95f, 0.64f), 20,
+                var typeT = MakeTMP(cardRT, "Type", typeKo,
+                    new Vector2(0.14f, 0.48f), new Vector2(0.86f, 0.55f), 20,
                     new Color(0.7f, 0.7f, 0.7f));
+                typeT.raycastTarget = false;
 
                 string rCardDesc = CardInstance.BuildEffectDesc(card.effects, card.exhaust, true);
                 var descT = MakeTMP(cardRT, "Desc", rCardDesc,
-                    new Vector2(0.05f, 0.08f), new Vector2(0.95f, 0.54f), 21,
+                    new Vector2(0.14f, 0.10f), new Vector2(0.86f, 0.46f), 22,
                     new Color(0.9f, 0.9f, 0.9f));
                 descT.alignment = TextAlignmentOptions.TopLeft;
+                descT.raycastTarget = false;
             }
         }
 
@@ -293,10 +358,10 @@ namespace SpellboundAscent.UI
             scrollRect.vertical = true;
 
             int cols = 3;
-            float cardW = 320f;
-            float cardH = 200f;
+            float cardW = 220f;
+            float cardH = 308f;
             float padX = 20f;
-            float padY = 10f;
+            float padY = 12f;
 
             var deck = run.deck;
             int rows = Mathf.CeilToInt(deck.Count / (float)cols);
@@ -320,31 +385,52 @@ namespace SpellboundAscent.UI
                 cardRT.anchoredPosition = new Vector2(x, y);
                 cardRT.sizeDelta = new Vector2(cardW, cardH);
 
-                Color cardColor = card.Data.type switch
+                var codexCardImg = cardRT.gameObject.AddComponent<Image>();
+                var codexFrameSprite = SpriteManager.GetCardFrame(card.Data.type);
+                if (codexFrameSprite != null)
                 {
-                    "attack" => new Color(0.5f, 0.15f, 0.15f, 0.9f),
-                    "skill" => new Color(0.15f, 0.25f, 0.5f, 0.9f),
-                    "power" => new Color(0.35f, 0.15f, 0.5f, 0.9f),
-                    _ => new Color(0.3f, 0.3f, 0.3f, 0.9f)
-                };
-
-                cardRT.gameObject.AddComponent<Image>().color = cardColor;
+                    codexCardImg.sprite = codexFrameSprite;
+                    codexCardImg.type = Image.Type.Simple;
+                    codexCardImg.color = Color.white;
+                }
+                else
+                {
+                    Color cardColor = card.Data.type switch
+                    {
+                        "attack" => new Color(0.5f, 0.15f, 0.15f, 0.9f),
+                        "skill" => new Color(0.15f, 0.25f, 0.5f, 0.9f),
+                        "power" => new Color(0.35f, 0.15f, 0.5f, 0.9f),
+                        _ => new Color(0.3f, 0.3f, 0.3f, 0.9f)
+                    };
+                    codexCardImg.color = cardColor;
+                }
 
                 string upgStr = card.Upgraded ? " <color=#44ff44>+</color>" : "";
-                MakeTMP(cardRT, "Cost", card.Cost.ToString(),
-                    new Vector2(0, 0.78f), new Vector2(0.2f, 1f), 26,
-                    new Color(1, 0.85f, 0.2f)).raycastTarget = false;
+
+                float dkYOff = card.Data.type switch { "skill" => 0.01f, "power" => -0.015f, _ => 0f };
+                var dkGemRT = MakeRect(cardRT, "CostGem",
+                    new Vector2(0.02f, 0.73f + dkYOff), new Vector2(0.35f, 0.95f + dkYOff), Vector2.zero, Vector2.zero);
+                var dkGemImg = dkGemRT.gameObject.AddComponent<Image>();
+                var dkGemSprite = SpriteManager.GetCostGem(card.Cost);
+                if (dkGemSprite != null) { dkGemImg.sprite = dkGemSprite; dkGemImg.color = Color.white; }
+                else { dkGemImg.color = new Color(0.15f, 0.1f, 0.25f, 0.9f); }
+                dkGemImg.raycastTarget = false;
+                var dkCostT = MakeTMP(dkGemRT, "CostNum", card.Cost.ToString(),
+                    Vector2.zero, Vector2.one, 22, Color.white);
+                dkCostT.alignment = TextAlignmentOptions.Center;
+                dkCostT.outlineWidth = 0.3f;
+                dkCostT.outlineColor = Color.black;
 
                 string cardName = !string.IsNullOrEmpty(card.Data.nameKo) ? card.Data.nameKo : card.Data.name;
                 var nameT = MakeTMP(cardRT, "Name", cardName + upgStr,
-                    new Vector2(0.05f, 0.55f), new Vector2(0.95f, 0.78f), 22, Color.white);
+                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 20, Color.white);
                 nameT.fontStyle = FontStyles.Bold;
                 nameT.raycastTarget = false;
 
                 string desc = card.ActiveDescriptionKo;
                 var descT = MakeTMP(cardRT, "Desc", desc,
-                    new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.55f), 16,
-                    new Color(0.75f, 0.75f, 0.75f));
+                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.53f), 16,
+                    new Color(0.82f, 0.82f, 0.82f));
                 descT.alignment = TextAlignmentOptions.TopLeft;
                 descT.raycastTarget = false;
             }
@@ -382,6 +468,110 @@ namespace SpellboundAscent.UI
             });
             MakeTMP(rt, "Txt", "계속",
                 Vector2.zero, Vector2.one, 30, Color.white).alignment = TextAlignmentOptions.Center;
+        }
+
+        void DismissTooltip()
+        {
+            if (_tooltipPanel != null)
+            {
+                Destroy(_tooltipPanel.gameObject);
+                _tooltipPanel = null;
+            }
+        }
+
+        void ShowRelicTooltip(RelicData relic)
+        {
+            DismissTooltip();
+
+            _tooltipPanel = MakeRect(_root, "Tooltip",
+                new Vector2(0.06f, 0.35f), new Vector2(0.94f, 0.72f), Vector2.zero, Vector2.zero);
+            var bg = _tooltipPanel.gameObject.AddComponent<Image>();
+            bg.color = new Color(0.08f, 0.06f, 0.14f, 0.98f);
+
+            var outline = _tooltipPanel.gameObject.AddComponent<Outline>();
+            Color borderColor = relic.rarity switch
+            {
+                "rare" => new Color(1f, 0.85f, 0.2f, 0.6f),
+                "uncommon" => new Color(0.4f, 0.7f, 1f, 0.5f),
+                "boss" => new Color(0.9f, 0.3f, 0.3f, 0.6f),
+                _ => new Color(0.5f, 0.5f, 0.5f, 0.4f)
+            };
+            outline.effectColor = borderColor;
+            outline.effectDistance = new Vector2(2, -2);
+
+            string name = !string.IsNullOrEmpty(relic.nameKo) ? relic.nameKo : relic.name;
+            var nameT = MakeTMP(_tooltipPanel, "Name", name,
+                new Vector2(0.04f, 0.78f), new Vector2(0.96f, 0.96f), 30, Color.white);
+            nameT.fontStyle = FontStyles.Bold;
+            nameT.alignment = TextAlignmentOptions.MidlineLeft;
+
+            string rarityKo = relic.rarity switch
+            {
+                "common" => "일반", "uncommon" => "고급", "rare" => "희귀", "boss" => "보스", _ => relic.rarity
+            };
+            Color tagColor = relic.rarity switch
+            {
+                "rare" => new Color(1, 0.85f, 0.2f),
+                "uncommon" => new Color(0.5f, 0.75f, 1f),
+                "boss" => new Color(1f, 0.4f, 0.4f),
+                _ => new Color(0.55f, 0.55f, 0.55f)
+            };
+            MakeTMP(_tooltipPanel, "Rarity", rarityKo,
+                new Vector2(0.04f, 0.65f), new Vector2(0.96f, 0.78f), 20, tagColor)
+                .alignment = TextAlignmentOptions.MidlineLeft;
+
+            string desc = !string.IsNullOrEmpty(relic.descriptionKo) ? relic.descriptionKo : relic.description;
+            if (string.IsNullOrEmpty(desc))
+                desc = CardInstance.BuildEffectDesc(relic.effects, false, true);
+            var descT = MakeTMP(_tooltipPanel, "Desc", desc,
+                new Vector2(0.04f, 0.2f), new Vector2(0.96f, 0.65f), 22,
+                new Color(0.85f, 0.85f, 0.85f));
+            descT.alignment = TextAlignmentOptions.TopLeft;
+
+            var closeRT = MakeRect(_tooltipPanel, "Close",
+                new Vector2(0.3f, 0.02f), new Vector2(0.7f, 0.18f), Vector2.zero, Vector2.zero);
+            closeRT.gameObject.AddComponent<Image>().color = new Color(0.3f, 0.2f, 0.2f, 0.9f);
+            var closeBtn = closeRT.gameObject.AddComponent<Button>();
+            closeBtn.targetGraphic = closeRT.GetComponent<Image>();
+            closeBtn.onClick.AddListener(DismissTooltip);
+            MakeTMP(closeRT, "Txt", "닫기",
+                Vector2.zero, Vector2.one, 22, Color.white).alignment = TextAlignmentOptions.Center;
+        }
+
+        void ShowPotionTooltip(PotionSlot potion)
+        {
+            DismissTooltip();
+
+            _tooltipPanel = MakeRect(_root, "Tooltip",
+                new Vector2(0.06f, 0.35f), new Vector2(0.94f, 0.68f), Vector2.zero, Vector2.zero);
+            var bg = _tooltipPanel.gameObject.AddComponent<Image>();
+            bg.color = new Color(0.06f, 0.1f, 0.06f, 0.98f);
+
+            var outline = _tooltipPanel.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0.3f, 0.8f, 0.4f, 0.5f);
+            outline.effectDistance = new Vector2(2, -2);
+
+            string name = !string.IsNullOrEmpty(potion.nameKo) ? potion.nameKo : potion.name;
+            var nameT = MakeTMP(_tooltipPanel, "Name", name,
+                new Vector2(0.04f, 0.78f), new Vector2(0.96f, 0.96f), 30,
+                new Color(0.3f, 1f, 0.5f));
+            nameT.fontStyle = FontStyles.Bold;
+            nameT.alignment = TextAlignmentOptions.MidlineLeft;
+
+            string desc = CardInstance.BuildEffectDesc(potion.effects, false, true);
+            var descT = MakeTMP(_tooltipPanel, "Desc", desc,
+                new Vector2(0.04f, 0.25f), new Vector2(0.96f, 0.75f), 22,
+                new Color(0.85f, 0.85f, 0.85f));
+            descT.alignment = TextAlignmentOptions.TopLeft;
+
+            var closeRT = MakeRect(_tooltipPanel, "Close",
+                new Vector2(0.3f, 0.02f), new Vector2(0.7f, 0.2f), Vector2.zero, Vector2.zero);
+            closeRT.gameObject.AddComponent<Image>().color = new Color(0.3f, 0.2f, 0.2f, 0.9f);
+            var closeBtn = closeRT.gameObject.AddComponent<Button>();
+            closeBtn.targetGraphic = closeRT.GetComponent<Image>();
+            closeBtn.onClick.AddListener(DismissTooltip);
+            MakeTMP(closeRT, "Txt", "닫기",
+                Vector2.zero, Vector2.one, 22, Color.white).alignment = TextAlignmentOptions.Center;
         }
 
         void BuildCanvas()
@@ -436,8 +626,9 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = size;
+            tmp.fontSize = Mathf.Max(size, 16);
             tmp.color = color;
+            tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.raycastTarget = false;
             FontManager.ApplyTo(tmp);

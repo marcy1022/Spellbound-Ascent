@@ -320,12 +320,12 @@ namespace SpellboundAscent.UI
             scrollRect.vertical = true;
             scrollRect.scrollSensitivity = 40f;
 
-            int cols = 2;
-            float padX = 10f;
+            int cols = 3;
+            float padX = 6f;
             float padY = 8f;
             float totalW = 1060f;
-            float cardW = (totalW - padX * 3) / cols;
-            float cardH = _showUpgraded ? 200f : 240f;
+            float cardW = (totalW - padX * (cols + 1)) / cols;
+            float cardH = cardW * 1.4f;
 
             int rows = Mathf.CeilToInt(cards.Count / (float)cols);
             float totalH = rows * (cardH + padY) + padY;
@@ -348,52 +348,67 @@ namespace SpellboundAscent.UI
                 cardRT.anchoredPosition = new Vector2(x, y);
                 cardRT.sizeDelta = new Vector2(cardW, cardH);
 
-                Color bgColor = card.type switch
+                var codexImg = cardRT.gameObject.AddComponent<Image>();
+                var codexFrame = SpriteManager.GetCardFrame(card.type);
+                if (codexFrame != null)
                 {
-                    "attack" => new Color(0.28f, 0.1f, 0.1f, 0.92f),
-                    "skill" => new Color(0.1f, 0.15f, 0.3f, 0.92f),
-                    "power" => new Color(0.22f, 0.1f, 0.3f, 0.92f),
-                    _ => new Color(0.18f, 0.18f, 0.18f, 0.92f)
-                };
-                cardRT.gameObject.AddComponent<Image>().color = bgColor;
-
-                Color rarityBorder = card.rarity switch
+                    codexImg.sprite = codexFrame;
+                    codexImg.type = Image.Type.Simple;
+                    codexImg.color = Color.white;
+                }
+                else
                 {
-                    "rare" => new Color(1f, 0.85f, 0.2f, 0.6f),
-                    "uncommon" => new Color(0.4f, 0.7f, 1f, 0.5f),
-                    _ => new Color(0.3f, 0.3f, 0.3f, 0.3f)
-                };
-                var outline = cardRT.gameObject.AddComponent<Outline>();
-                outline.effectColor = rarityBorder;
-                outline.effectDistance = new Vector2(2, -2);
-
-                // Cost
-                var costBg = MakeRect(cardRT, "CostBg",
-                    new Vector2(0, 0.78f), new Vector2(0.16f, 1f), Vector2.zero, Vector2.zero);
-                costBg.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.08f, 0.18f, 0.9f);
-                costBg.gameObject.GetComponent<Image>().raycastTarget = false;
+                    Color bgColor = card.type switch
+                    {
+                        "attack" => new Color(0.28f, 0.1f, 0.1f, 0.92f),
+                        "skill" => new Color(0.1f, 0.15f, 0.3f, 0.92f),
+                        "power" => new Color(0.22f, 0.1f, 0.3f, 0.92f),
+                        _ => new Color(0.18f, 0.18f, 0.18f, 0.92f)
+                    };
+                    codexImg.color = bgColor;
+                }
 
                 bool showUpg = _showUpgraded && card.upgradeEffects != null && card.upgradeEffects.Count > 0;
                 bool hasCostReduce = showUpg && card.upgradeEffects.Exists(e => e.type == "costReduction");
                 int displayCost = hasCostReduce ? Mathf.Max(0, card.cost - 1) : card.cost;
-                Color costColor = hasCostReduce ? new Color(0.3f, 1f, 0.4f) : new Color(1, 0.85f, 0.2f);
+                Color costColor = hasCostReduce ? new Color(0.3f, 1f, 0.4f) : Color.white;
 
-                MakeTMP(costBg, "Cost", displayCost.ToString(),
-                    Vector2.zero, Vector2.one, 26, costColor).alignment = TextAlignmentOptions.Center;
+                float gemYOff = card.type switch { "skill" => 0.01f, "power" => -0.015f, _ => 0f };
+                var costGem = MakeRect(cardRT, "CostGem",
+                    new Vector2(0.02f, 0.73f + gemYOff), new Vector2(0.35f, 0.95f + gemYOff), Vector2.zero, Vector2.zero);
+                var costGemImg = costGem.gameObject.AddComponent<Image>();
+                var gemSprite = SpriteManager.GetCostGem(displayCost);
+                if (gemSprite != null)
+                {
+                    costGemImg.sprite = gemSprite;
+                    costGemImg.color = Color.white;
+                }
+                else
+                {
+                    costGemImg.color = new Color(0.15f, 0.1f, 0.25f, 0.9f);
+                }
+                costGemImg.raycastTarget = false;
 
-                // Name row
+                var costText = MakeTMP(costGem, "Cost", displayCost.ToString(),
+                    Vector2.zero, Vector2.one, 22, costColor);
+                costText.alignment = TextAlignmentOptions.Center;
+                costText.outlineWidth = 0.3f;
+                costText.outlineColor = Color.black;
+
                 string nameStr = !string.IsNullOrEmpty(card.nameKo) ? card.nameKo : card.name;
                 string suffix = showUpg ? " <color=#44ff44>+</color>" : "";
+
+                var nameT = MakeTMP(cardRT, "Name", nameStr + suffix,
+                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 20, Color.white);
+                nameT.fontStyle = FontStyles.Bold;
+                nameT.alignment = TextAlignmentOptions.Center;
+                nameT.enableWordWrapping = false;
+                nameT.overflowMode = TextOverflowModes.Ellipsis;
+
                 string typeKo = card.type switch
                 {
                     "attack" => "공격", "skill" => "스킬", "power" => "파워", _ => card.type
                 };
-
-                var nameT = MakeTMP(cardRT, "Name", nameStr + suffix,
-                    new Vector2(0.18f, 0.78f), new Vector2(0.98f, 1f), 22, Color.white);
-                nameT.fontStyle = FontStyles.Bold;
-
-                // Type + rarity tag
                 string rarityKo = card.rarity switch
                 {
                     "common" => "일반", "uncommon" => "고급", "rare" => "희귀", _ => card.rarity
@@ -404,17 +419,17 @@ namespace SpellboundAscent.UI
                     "uncommon" => new Color(0.5f, 0.75f, 1f),
                     _ => new Color(0.55f, 0.55f, 0.55f)
                 };
-                MakeTMP(cardRT, "TypeRarity", $"{typeKo} · {rarityKo}",
-                    new Vector2(0.04f, 0.65f), new Vector2(0.96f, 0.78f), 16, rarityTextColor);
+                var typeTag = MakeTMP(cardRT, "TypeRarity", $"{typeKo} · {rarityKo}",
+                    new Vector2(0.14f, 0.48f), new Vector2(0.86f, 0.55f), 16, rarityTextColor);
+                typeTag.alignment = TextAlignmentOptions.Center;
 
-                // Effects
                 var effects = showUpg ? card.upgradeEffects : card.effects;
                 string desc = CardInstance.BuildEffectDesc(effects, card.exhaust, true);
                 Color descColor = showUpg ? new Color(0.4f, 0.95f, 0.5f) : new Color(0.82f, 0.82f, 0.82f);
 
                 var descT = MakeTMP(cardRT, "Desc", desc,
-                    new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.65f), 17, descColor);
-                descT.alignment = TextAlignmentOptions.TopLeft;
+                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.46f), 17, descColor);
+                descT.alignment = TextAlignmentOptions.Center;
             }
         }
 
@@ -442,8 +457,9 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = size;
+            tmp.fontSize = Mathf.Max(size, 16);
             tmp.color = color;
+            tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.raycastTarget = false;
             FontManager.ApplyTo(tmp);

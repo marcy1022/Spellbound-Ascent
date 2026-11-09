@@ -138,11 +138,22 @@ namespace SpellboundAscent.UI
 
                 // Potion icon area
                 var iconBg = MakeRect(potRT, "Icon",
-                    new Vector2(0.02f, 0.2f), new Vector2(0.15f, 0.8f), Vector2.zero, Vector2.zero);
-                iconBg.gameObject.AddComponent<Image>().color = new Color(0.15f, 0.3f, 0.2f, 0.8f);
-                iconBg.GetComponent<Image>().raycastTarget = false;
-                MakeTMP(iconBg, "Ico", "P", Vector2.zero, Vector2.one, 28,
-                    new Color(0.3f, 1f, 0.5f)).alignment = TextAlignmentOptions.Center;
+                    new Vector2(0.02f, 0.1f), new Vector2(0.15f, 0.9f), Vector2.zero, Vector2.zero);
+                var potSprite = SpriteManager.GetPotion(pot.id);
+                if (potSprite != null)
+                {
+                    var potIconImg = iconBg.gameObject.AddComponent<Image>();
+                    potIconImg.sprite = potSprite;
+                    potIconImg.preserveAspect = true;
+                    potIconImg.raycastTarget = false;
+                }
+                else
+                {
+                    iconBg.gameObject.AddComponent<Image>().color = new Color(0.15f, 0.3f, 0.2f, 0.8f);
+                    iconBg.GetComponent<Image>().raycastTarget = false;
+                    MakeTMP(iconBg, "Ico", "P", Vector2.zero, Vector2.one, 28,
+                        new Color(0.3f, 1f, 0.5f)).alignment = TextAlignmentOptions.Center;
+                }
 
                 // Name
                 string name = !string.IsNullOrEmpty(pot.nameKo) ? pot.nameKo : pot.name;
@@ -218,8 +229,9 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = size;
+            tmp.fontSize = Mathf.Max(size, 16);
             tmp.color = color;
+            tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.raycastTarget = false;
             FontManager.ApplyTo(tmp);

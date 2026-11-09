@@ -38,30 +38,41 @@ namespace SpellboundAscent.Core
 
         void LoadGameData()
         {
-            Balance = JsonLoader.LoadBalanceConfig();
-            Debug.Log($"[GM] Balance loaded: energy={Balance?.energy?.basePerTurn}");
-
-            foreach (string cls in new[] { "pyromancer", "warden", "chronomancer", "necromancer", "neutral" })
+            try
             {
-                var cards = JsonLoader.LoadCards(cls);
-                Debug.Log($"[GM] {cls} cards: {cards.Count}");
-                if (cards.Count > 0)
-                    _cardPool[cls] = cards;
-            }
+                Balance = JsonLoader.LoadBalanceConfig();
+                if (Balance == null)
+                {
+                    Balance = new BalanceConfig();
+                    Debug.LogWarning("[GM] Balance config is null, using defaults");
+                }
+                Debug.Log($"[GM] Balance loaded: energy={Balance?.energy?.basePerTurn}");
 
-            for (int act = 1; act <= Constants.TOTAL_ACTS; act++)
+                foreach (string cls in new[] { "pyromancer", "warden", "chronomancer", "necromancer", "neutral" })
+                {
+                    var cards = JsonLoader.LoadCards(cls);
+                    Debug.Log($"[GM] {cls} cards: {cards.Count}");
+                    if (cards.Count > 0)
+                        _cardPool[cls] = cards;
+                }
+
+                for (int act = 1; act <= Constants.TOTAL_ACTS; act++)
+                {
+                    var enemies = JsonLoader.LoadEnemies(act);
+                    Debug.Log($"[GM] Act{act} enemies: {enemies.Count}");
+                    _enemyPool.AddRange(enemies);
+                }
+
+                _relicPool = JsonLoader.LoadRelics();
+                _eventPool = JsonLoader.LoadEvents();
+                _potionPool = JsonLoader.LoadPotions();
+                Debug.Log($"[GM] Total: cards={_cardPool.Count} pools, enemies={_enemyPool.Count}, relics={_relicPool.Count}, events={_eventPool.Count}, potions={_potionPool.Count}");
+            }
+            catch (System.Exception e)
             {
-                var enemies = JsonLoader.LoadEnemies(act);
-                Debug.Log($"[GM] Act{act} enemies: {enemies.Count}");
-                _enemyPool.AddRange(enemies);
+                Debug.LogError($"[GM] LoadGameData failed: {e}");
+                if (Balance == null) Balance = new BalanceConfig();
             }
-
-            _relicPool = JsonLoader.LoadRelics();
-
-            _eventPool = JsonLoader.LoadEvents();
-
-            _potionPool = JsonLoader.LoadPotions();
-            Debug.Log($"[GM] Total: cards={_cardPool.Count} pools, enemies={_enemyPool.Count}, relics={_relicPool.Count}, events={_eventPool.Count}, potions={_potionPool.Count}");
         }
 
         public void RestoreRun(RunState run)

@@ -19,33 +19,39 @@ namespace SpellboundAscent.Core
 
         void LoadKoreanFont()
         {
-            var font = Resources.Load<Font>("Fonts/NotoSansKR-VF");
-            if (font == null)
+            try
             {
-                Debug.LogWarning("[FontManager] Korean font not found at Resources/Fonts/NotoSansKR-VF");
-                return;
-            }
+                var font = Resources.Load<Font>("Fonts/NotoSansKR-VF");
+                if (font == null)
+                {
+                    font = Resources.Load<Font>("Fonts/NotoSansKR-Regular");
+                    if (font == null)
+                    {
+                        Debug.LogWarning("[FontManager] Korean font not found");
+                        return;
+                    }
+                }
 
-            KoreanFont = TMP_FontAsset.CreateFontAsset(font);
-            if (KoreanFont == null)
-            {
-                Debug.LogWarning("[FontManager] Failed to create TMP_FontAsset from Korean font");
-                return;
-            }
+                KoreanFont = TMP_FontAsset.CreateFontAsset(font);
+                if (KoreanFont == null)
+                {
+                    Debug.LogWarning("[FontManager] Failed to create TMP_FontAsset");
+                    return;
+                }
 
-            KoreanFont.name = "NotoSansKR-Dynamic";
+                KoreanFont.name = "NotoSansKR-Dynamic";
 
-            var defaultFont = TMP_Settings.defaultFontAsset;
-            if (defaultFont != null)
-            {
-                defaultFont.fallbackFontAssetTable ??= new List<TMP_FontAsset>();
-                if (!defaultFont.fallbackFontAssetTable.Contains(KoreanFont))
-                    defaultFont.fallbackFontAssetTable.Add(KoreanFont);
-                Debug.Log("[FontManager] Korean font added as fallback to default TMP font");
+                var defaultFont = TMP_Settings.defaultFontAsset;
+                if (defaultFont != null)
+                {
+                    defaultFont.fallbackFontAssetTable ??= new List<TMP_FontAsset>();
+                    if (!defaultFont.fallbackFontAssetTable.Contains(KoreanFont))
+                        defaultFont.fallbackFontAssetTable.Add(KoreanFont);
+                }
             }
-            else
+            catch (System.Exception e)
             {
-                Debug.Log("[FontManager] Korean font loaded (no default TMP font found, will apply manually)");
+                Debug.LogWarning($"[FontManager] Font loading failed (WebGL?): {e.Message}");
             }
         }
 
