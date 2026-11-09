@@ -230,26 +230,23 @@ namespace SpellboundAscent.UI
                 var relicSprite = SpriteManager.GetRelic(relic.id);
                 if (relicSprite != null)
                 {
-                    var iconBgRT = MakeRect(relicRT, "IconBg",
-                        new Vector2(0.02f, 0.15f), new Vector2(0.18f, 0.92f), Vector2.zero, Vector2.zero);
-                    var iconBgImg = iconBgRT.gameObject.AddComponent<Image>();
-                    iconBgImg.color = new Color(0, 0, 0, 0.3f);
-                    iconBgImg.raycastTarget = false;
-
                     var iconRT = MakeRect(relicRT, "Icon",
-                        new Vector2(0.03f, 0.2f), new Vector2(0.17f, 0.88f), Vector2.zero, Vector2.zero);
+                        new Vector2(0.01f, 0.08f), new Vector2(0.24f, 0.95f), Vector2.zero, Vector2.zero);
                     var iconImg = iconRT.gameObject.AddComponent<Image>();
                     iconImg.sprite = relicSprite;
                     iconImg.preserveAspect = true;
                     iconImg.raycastTarget = false;
-                    textLeft = 0.19f;
+                    textLeft = 0.26f;
                 }
 
                 // Name
                 string name = !string.IsNullOrEmpty(relic.nameKo) ? relic.nameKo : relic.name;
                 var nameT = MakeTMP(relicRT, "Name", name,
-                    new Vector2(textLeft, 0.72f), new Vector2(0.96f, 0.97f), 21, Color.white);
+                    new Vector2(textLeft, 0.72f), new Vector2(0.96f, 0.97f), 28, Color.white);
                 nameT.fontStyle = FontStyles.Bold;
+                nameT.enableAutoSizing = true;
+                nameT.fontSizeMin = 20;
+                nameT.fontSizeMax = 28;
 
                 // Tags (rarity + class + trigger)
                 string rarityKo = relic.rarity switch
@@ -332,7 +329,7 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = Mathf.Max(size, 16);
+            tmp.fontSize = Mathf.Max(size, 20);
             tmp.color = color;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;

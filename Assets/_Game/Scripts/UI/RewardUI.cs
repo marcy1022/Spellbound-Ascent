@@ -185,7 +185,7 @@ namespace SpellboundAscent.UI
                 };
                 string rarityKo = card.rarity switch { "common" => "일반", "uncommon" => "고급", "rare" => "희귀", _ => card.rarity };
                 var rarityT = MakeTMP(cardRT, "Rarity", rarityKo,
-                    new Vector2(0.7f, 0.88f), new Vector2(0.98f, 0.96f), 18, rarityColor);
+                    new Vector2(0.7f, 0.88f), new Vector2(0.98f, 0.96f), 20, rarityColor);
                 rarityT.alignment = TextAlignmentOptions.MidlineRight;
                 rarityT.raycastTarget = false;
 
@@ -423,13 +423,13 @@ namespace SpellboundAscent.UI
 
                 string cardName = !string.IsNullOrEmpty(card.Data.nameKo) ? card.Data.nameKo : card.Data.name;
                 var nameT = MakeTMP(cardRT, "Name", cardName + upgStr,
-                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 20, Color.white);
+                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 22, Color.white);
                 nameT.fontStyle = FontStyles.Bold;
                 nameT.raycastTarget = false;
 
                 string desc = card.ActiveDescriptionKo;
                 var descT = MakeTMP(cardRT, "Desc", desc,
-                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.53f), 16,
+                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.53f), 20,
                     new Color(0.82f, 0.82f, 0.82f));
                 descT.alignment = TextAlignmentOptions.TopLeft;
                 descT.raycastTarget = false;
@@ -626,7 +626,7 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = Mathf.Max(size, 16);
+            tmp.fontSize = Mathf.Max(size, 20);
             tmp.color = color;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;

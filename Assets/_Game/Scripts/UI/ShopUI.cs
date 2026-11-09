@@ -172,12 +172,12 @@ namespace SpellboundAscent.UI
                 string sType = card.type switch { "attack" => "공격", "skill" => "스킬", "power" => "파워", _ => card.type };
                 string sRarity = card.rarity switch { "common" => "일반", "uncommon" => "고급", "rare" => "희귀", _ => card.rarity };
                 MakeTMP(cardRT, "Type", $"{sType} / {sRarity}",
-                    new Vector2(0.14f, 0.48f), new Vector2(0.86f, 0.55f), 17,
+                    new Vector2(0.14f, 0.48f), new Vector2(0.86f, 0.55f), 20,
                     new Color(0.7f, 0.7f, 0.7f));
 
                 string sCardDesc = CardInstance.BuildEffectDesc(card.effects, card.exhaust, true);
                 var descT = MakeTMP(cardRT, "Desc", sCardDesc,
-                    new Vector2(0.14f, 0.15f), new Vector2(0.86f, 0.46f), 19,
+                    new Vector2(0.14f, 0.15f), new Vector2(0.86f, 0.46f), 20,
                     new Color(0.85f, 0.85f, 0.85f));
                 descT.alignment = TextAlignmentOptions.TopLeft;
 
@@ -349,14 +349,14 @@ namespace SpellboundAscent.UI
             };
             Color rarityTextColor = new Color(nameBorderColor.r, nameBorderColor.g, nameBorderColor.b, 1f);
             MakeTMP(relRT, "Rarity", rarityKo,
-                new Vector2(nameLeft, 0.05f), new Vector2(0.55f, 0.5f), 18,
+                new Vector2(nameLeft, 0.05f), new Vector2(0.55f, 0.5f), 20,
                 rarityTextColor).alignment = TextAlignmentOptions.MidlineLeft;
 
             string desc = !string.IsNullOrEmpty(relic.descriptionKo) ? relic.descriptionKo : relic.description;
             if (string.IsNullOrEmpty(desc))
                 desc = CardInstance.BuildEffectDesc(relic.effects, false, true);
             var descT = MakeTMP(relRT, "Desc", desc,
-                new Vector2(0.55f, 0.3f), new Vector2(0.82f, 0.95f), 17,
+                new Vector2(0.55f, 0.3f), new Vector2(0.82f, 0.95f), 20,
                 new Color(0.75f, 0.75f, 0.75f));
             descT.alignment = TextAlignmentOptions.MidlineLeft;
 
@@ -547,7 +547,7 @@ namespace SpellboundAscent.UI
 
                 string remName = !string.IsNullOrEmpty(card.Data.nameKo) ? card.Data.nameKo : card.Data.name;
                 var remNameT = MakeTMP(cardRT, "Name", remName,
-                    new Vector2(0.14f, 0.40f), new Vector2(0.86f, 0.80f), 18, Color.white);
+                    new Vector2(0.14f, 0.40f), new Vector2(0.86f, 0.80f), 20, Color.white);
                 remNameT.fontStyle = FontStyles.Bold;
                 remNameT.alignment = TextAlignmentOptions.Center;
 
@@ -824,7 +824,7 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = Mathf.Max(size, 16);
+            tmp.fontSize = Mathf.Max(size, 20);
             tmp.color = color;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;

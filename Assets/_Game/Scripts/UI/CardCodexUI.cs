@@ -124,8 +124,8 @@ namespace SpellboundAscent.UI
                 var pool = GameManager.Instance.GetCardPool(cls);
                 int count = pool.FindAll(c => c.@class == cls && c.rarity != "starter").Count;
 
-                var txt = MakeTMP(tabRT, "Txt", $"{ClassNames[cls]}\n<size=14>{count}장</size>",
-                    Vector2.zero, Vector2.one, 16, Color.white);
+                var txt = MakeTMP(tabRT, "Txt", $"{ClassNames[cls]}\n<size=16>{count}장</size>",
+                    Vector2.zero, Vector2.one, 20, Color.white);
                 txt.alignment = TextAlignmentOptions.Center;
                 _tabBtnTexts.Add(txt);
             }
@@ -160,14 +160,14 @@ namespace SpellboundAscent.UI
                 string t = types[i];
                 btn.onClick.AddListener(() => { _typeFilter = t; RefreshFilterVisuals(); RebuildCards(); });
                 var txt = MakeTMP(btnRT, "Txt", typeLabels[i],
-                    Vector2.zero, Vector2.one, 18, Color.white);
+                    Vector2.zero, Vector2.one, 22, Color.white);
                 txt.alignment = TextAlignmentOptions.Center;
                 _filterBtnTexts.Add(txt);
             }
 
             // Sort buttons
             var sortLabel = MakeTMP(filterBar, "SortLabel", "정렬:",
-                new Vector2(0.59f, 0), new Vector2(0.67f, 1), 16, new Color(0.5f, 0.5f, 0.5f));
+                new Vector2(0.59f, 0), new Vector2(0.67f, 1), 20, new Color(0.5f, 0.5f, 0.5f));
             sortLabel.alignment = TextAlignmentOptions.Center;
 
             string[] sorts = { "cost", "rarity", "name" };
@@ -185,7 +185,7 @@ namespace SpellboundAscent.UI
                 string s = sorts[i];
                 btn.onClick.AddListener(() => { _sortMode = s; RefreshFilterVisuals(); RebuildCards(); });
                 var txt = MakeTMP(btnRT, "Txt", sortLabels[i],
-                    Vector2.zero, Vector2.one, 16, Color.white);
+                    Vector2.zero, Vector2.one, 20, Color.white);
                 txt.alignment = TextAlignmentOptions.Center;
                 _sortBtnTexts.Add(txt);
             }
@@ -399,7 +399,7 @@ namespace SpellboundAscent.UI
                 string suffix = showUpg ? " <color=#44ff44>+</color>" : "";
 
                 var nameT = MakeTMP(cardRT, "Name", nameStr + suffix,
-                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 20, Color.white);
+                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 22, Color.white);
                 nameT.fontStyle = FontStyles.Bold;
                 nameT.alignment = TextAlignmentOptions.Center;
                 nameT.enableWordWrapping = false;
@@ -420,7 +420,7 @@ namespace SpellboundAscent.UI
                     _ => new Color(0.55f, 0.55f, 0.55f)
                 };
                 var typeTag = MakeTMP(cardRT, "TypeRarity", $"{typeKo} · {rarityKo}",
-                    new Vector2(0.14f, 0.48f), new Vector2(0.86f, 0.55f), 16, rarityTextColor);
+                    new Vector2(0.14f, 0.48f), new Vector2(0.86f, 0.55f), 20, rarityTextColor);
                 typeTag.alignment = TextAlignmentOptions.Center;
 
                 var effects = showUpg ? card.upgradeEffects : card.effects;
@@ -428,7 +428,7 @@ namespace SpellboundAscent.UI
                 Color descColor = showUpg ? new Color(0.4f, 0.95f, 0.5f) : new Color(0.82f, 0.82f, 0.82f);
 
                 var descT = MakeTMP(cardRT, "Desc", desc,
-                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.46f), 17, descColor);
+                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.46f), 20, descColor);
                 descT.alignment = TextAlignmentOptions.Center;
             }
         }
@@ -457,7 +457,7 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = Mathf.Max(size, 16);
+            tmp.fontSize = Mathf.Max(size, 20);
             tmp.color = color;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;

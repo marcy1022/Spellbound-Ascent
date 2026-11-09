@@ -45,7 +45,7 @@ namespace SpellboundAscent.UI
                 .alignment = TextAlignmentOptions.Center;
 
             MakeTMP(root, "Hint", "전투 중 에너지 소모 없이 사용. 최대 3슬롯 소지.",
-                new Vector2(0.04f, 0.91f), new Vector2(0.96f, 0.945f), 18,
+                new Vector2(0.04f, 0.91f), new Vector2(0.96f, 0.945f), 20,
                 new Color(0.5f, 0.5f, 0.5f));
 
             // Scroll
@@ -166,13 +166,13 @@ namespace SpellboundAscent.UI
                 if (string.IsNullOrEmpty(desc))
                     desc = CardInstance.BuildEffectDesc(pot.effects, false, true);
                 MakeTMP(potRT, "Desc", desc,
-                    new Vector2(0.18f, 0.3f), new Vector2(0.96f, 0.62f), 19,
+                    new Vector2(0.18f, 0.3f), new Vector2(0.96f, 0.62f), 20,
                     new Color(0.8f, 0.8f, 0.8f)).alignment = TextAlignmentOptions.TopLeft;
 
                 // Effects detail
                 string effectStr = BuildPotionEffects(pot.effects);
                 MakeTMP(potRT, "Effects", effectStr,
-                    new Vector2(0.18f, 0.04f), new Vector2(0.96f, 0.32f), 16,
+                    new Vector2(0.18f, 0.04f), new Vector2(0.96f, 0.32f), 20,
                     new Color(0.5f, 0.7f, 0.55f));
 
                 yOff -= (cardH + gap);
@@ -229,7 +229,7 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = Mathf.Max(size, 16);
+            tmp.fontSize = Mathf.Max(size, 20);
             tmp.color = color;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;

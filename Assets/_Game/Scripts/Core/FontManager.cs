@@ -8,6 +8,7 @@ namespace SpellboundAscent.Core
     {
         public static FontManager Instance { get; private set; }
         public static TMP_FontAsset KoreanFont { get; private set; }
+        public static TMP_FontAsset KoreanFontBold { get; private set; }
 
         void Awake()
         {
@@ -21,25 +22,22 @@ namespace SpellboundAscent.Core
         {
             try
             {
-                var font = Resources.Load<Font>("Fonts/NotoSansKR-VF");
-                if (font == null)
-                {
-                    font = Resources.Load<Font>("Fonts/NotoSansKR-Regular");
-                    if (font == null)
-                    {
-                        Debug.LogWarning("[FontManager] Korean font not found");
-                        return;
-                    }
-                }
+                KoreanFontBold = TryCreateFont("Fonts/Pretendard-ExtraBold", "Pretendard-ExtraBold");
+                KoreanFont = TryCreateFont("Fonts/Pretendard-Bold", "Pretendard-Bold");
 
-                KoreanFont = TMP_FontAsset.CreateFontAsset(font);
+                if (KoreanFont == null)
+                    KoreanFont = KoreanFontBold;
+                if (KoreanFont == null)
+                    KoreanFont = TryCreateFont("Fonts/NotoSansKR-VF", "NotoSansKR-Dynamic");
+
                 if (KoreanFont == null)
                 {
-                    Debug.LogWarning("[FontManager] Failed to create TMP_FontAsset");
+                    Debug.LogWarning("[FontManager] No Korean font found");
                     return;
                 }
 
-                KoreanFont.name = "NotoSansKR-Dynamic";
+                if (KoreanFontBold == null)
+                    KoreanFontBold = KoreanFont;
 
                 var defaultFont = TMP_Settings.defaultFontAsset;
                 if (defaultFont != null)
@@ -51,26 +49,31 @@ namespace SpellboundAscent.Core
             }
             catch (System.Exception e)
             {
-                Debug.LogWarning($"[FontManager] Font loading failed (WebGL?): {e.Message}");
+                Debug.LogWarning($"[FontManager] Font loading failed: {e.Message}");
             }
+        }
+
+        static TMP_FontAsset TryCreateFont(string path, string label)
+        {
+            var font = Resources.Load<Font>(path);
+            if (font == null) return null;
+            var asset = TMP_FontAsset.CreateFontAsset(font, 90, 9,
+                UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA, 4096, 4096);
+            if (asset != null) asset.name = label;
+            return asset;
         }
 
         public static void ApplyTo(TextMeshProUGUI tmp)
         {
-            if (KoreanFont == null || tmp == null) return;
-            if (tmp.font != null && tmp.font.fallbackFontAssetTable != null
-                && tmp.font.fallbackFontAssetTable.Contains(KoreanFont)) return;
+            if (tmp == null) return;
 
-            if (tmp.font != null)
-            {
-                tmp.font.fallbackFontAssetTable ??= new List<TMP_FontAsset>();
-                if (!tmp.font.fallbackFontAssetTable.Contains(KoreanFont))
-                    tmp.font.fallbackFontAssetTable.Add(KoreanFont);
-            }
-            else
-            {
-                tmp.font = KoreanFont;
-            }
+            bool wantBold = (tmp.fontStyle & FontStyles.Bold) != 0;
+            var targetFont = wantBold && KoreanFontBold != null ? KoreanFontBold : KoreanFont;
+            if (targetFont == null) return;
+
+            tmp.font = targetFont;
+            if (wantBold && KoreanFontBold != null)
+                tmp.fontStyle &= ~FontStyles.Bold;
         }
     }
 }

@@ -230,7 +230,7 @@ namespace SpellboundAscent.UI
             _endTurnBtn.targetGraphic = img;
             _endTurnBtn.onClick.AddListener(OnEndTurnClicked);
             MakeTMP(btn, "Txt", "턴 종료",
-                Vector2.zero, Vector2.one, 24, Color.white).alignment = TextAlignmentOptions.Center;
+                Vector2.zero, Vector2.one, 28, Color.white).alignment = TextAlignmentOptions.Center;
         }
 
         void BuildMasterSkillButton()
@@ -693,12 +693,12 @@ namespace SpellboundAscent.UI
 
                 string cName = !string.IsNullOrEmpty(card.Data.nameKo) ? card.Data.nameKo : card.Data.name;
                 var cNameT = MakeTMP(cardRT, "Name", cName + upgStr,
-                    new Vector2(0.14f, 0.48f), new Vector2(0.86f, 0.68f), 22, Color.white);
+                    new Vector2(0.14f, 0.48f), new Vector2(0.86f, 0.68f), 24, Color.white);
                 cNameT.fontStyle = FontStyles.Bold;
                 cNameT.raycastTarget = false;
 
                 MakeTMP(cardRT, "Desc", card.ActiveDescriptionKo,
-                    new Vector2(0.14f, 0.08f), new Vector2(0.86f, 0.46f), 16,
+                    new Vector2(0.14f, 0.08f), new Vector2(0.86f, 0.46f), 20,
                     new Color(0.8f, 0.8f, 0.8f)).raycastTarget = false;
 
                 var btn = cardRT.gameObject.AddComponent<Button>();
@@ -1037,14 +1037,14 @@ namespace SpellboundAscent.UI
                 string handName = !string.IsNullOrEmpty(card.Data.nameKo) ? card.Data.nameKo : card.Data.name;
                 string upgStr = card.Upgraded ? " <color=#44ff44>+</color>" : "";
                 var nameT = MakeTMP(visual, "Name", handName + upgStr,
-                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 22, Color.white);
+                    new Vector2(0.14f, 0.55f), new Vector2(0.86f, 0.75f), 24, Color.white);
                 nameT.fontStyle = FontStyles.Bold;
                 nameT.raycastTarget = false;
 
                 string descText = card.GetBattleDescKo(str, dex, weak,
                     ps.StatusEffects, deck.Hand.Count, deck.DiscardPile.Count);
                 var desc = MakeTMP(visual, "Desc", descText,
-                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.53f), 17, new Color(0.85f, 0.85f, 0.85f));
+                    new Vector2(0.14f, 0.12f), new Vector2(0.86f, 0.53f), 20, new Color(0.85f, 0.85f, 0.85f));
                 desc.alignment = TextAlignmentOptions.TopLeft;
                 desc.raycastTarget = false;
 
@@ -1438,7 +1438,7 @@ namespace SpellboundAscent.UI
             var rt = MakeRect(parent, name, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
             var tmp = rt.gameObject.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = Mathf.Max(size, 16);
+            tmp.fontSize = Mathf.Max(size, 20);
             tmp.color = color;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
