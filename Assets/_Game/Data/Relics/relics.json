@@ -19,16 +19,16 @@
     "rarity": "common",
     "trigger": "turnStart",
     "condition": null,
-    "effects": [{"type": "block", "value": 3}],
-    "description": "At the start of each turn, gain 3 Block.",
-    "descriptionKo": "매 턴 시작 시 블록 3 획득."
+    "effects": [{"type": "block", "value": 2}],
+    "description": "At the start of each turn, gain 2 Block.",
+    "descriptionKo": "매 턴 시작 시 블록 2 획득."
   },
   {
     "id": "energy_crystal",
     "name": "Energy Crystal",
     "nameKo": "에너지 수정",
     "class": "any",
-    "rarity": "rare",
+    "rarity": "uncommon",
     "trigger": "battleStart",
     "condition": null,
     "effects": [{"type": "energy", "value": 1}],
@@ -40,7 +40,7 @@
     "name": "Ancient Tome",
     "nameKo": "고대 서적",
     "class": "any",
-    "rarity": "common",
+    "rarity": "rare",
     "trigger": "turnStart",
     "condition": null,
     "effects": [{"type": "draw", "value": 1}],
@@ -55,9 +55,9 @@
     "rarity": "uncommon",
     "trigger": "onCardPlayed",
     "condition": null,
-    "effects": [{"type": "block", "value": 1}],
-    "description": "Whenever you play a card, gain 1 Block.",
-    "descriptionKo": "카드를 사용할 때마다 블록 1 획득."
+    "effects": [{"type": "gainEmber", "value": 1}],
+    "description": "Whenever you play a card, gain 1 Ember.",
+    "descriptionKo": "카드 사용 시 잔불 1 획득."
   },
   {
     "id": "blood_vial",
@@ -67,9 +67,9 @@
     "rarity": "common",
     "trigger": "battleStart",
     "condition": null,
-    "effects": [{"type": "heal", "value": 3}],
-    "description": "At the start of battle, heal 3 HP.",
-    "descriptionKo": "전투 시작 시 HP 3 회복."
+    "effects": [{"type": "heal", "value": 5}],
+    "description": "At the start of battle, heal 5 HP.",
+    "descriptionKo": "전투 시작 시 HP 5 회복."
   },
   {
     "id": "war_drum",
@@ -151,9 +151,9 @@
     "rarity": "rare",
     "trigger": "turnStart",
     "condition": null,
-    "effects": [{"type": "draw", "value": 1}, {"type": "block", "value": 2}],
-    "description": "At the start of each turn, draw 1 card and gain 2 Block.",
-    "descriptionKo": "매 턴 시작 시 카드 1장 드로우, 블록 2 획득."
+    "effects": [{"type": "energy", "value": 1}, {"type": "block", "value": 3}],
+    "description": "At the start of each turn, gain 1 Energy and 3 Block.",
+    "descriptionKo": "매 턴 시작 시 에너지 1, 블록 3 획득."
   },
   {
     "id": "dragons_eye",
@@ -208,7 +208,7 @@
     "name": "Ash Crown",
     "nameKo": "잿더미의 왕관",
     "class": "pyromancer",
-    "rarity": "rare",
+    "rarity": "uncommon",
     "trigger": "onExhaust",
     "condition": null,
     "effects": [{"type": "applyStrength", "value": 1}],
@@ -222,10 +222,22 @@
     "class": "pyromancer",
     "rarity": "rare",
     "trigger": "onTurnEnd",
-    "condition": {"type": "emberAbove", "value": 3},
+    "condition": {"type": "emberAbove", "value": 5},
     "effects": [{"type": "damageAllEnemies", "value": 8}],
-    "description": "At end of turn, if Ember ≥ 3, deal 8 damage to ALL enemies.",
-    "descriptionKo": "턴 종료 시 잔불 3 이상이면 모든 적에게 8 데미지."
+    "description": "At end of turn, if Ember ≥ 5, deal 8 damage to ALL enemies.",
+    "descriptionKo": "턴 종료 시 잔불 5 이상이면 모든 적에게 8 데미지."
+  },
+  {
+    "id": "seedling_charm",
+    "name": "Seedling Charm",
+    "nameKo": "새싹의 부적",
+    "class": "warden",
+    "rarity": "common",
+    "trigger": "battleStart",
+    "condition": null,
+    "effects": [{"type": "gainGrowth", "value": 1}, {"type": "block", "value": 3}],
+    "description": "At the start of battle, gain 1 Growth and 3 Block.",
+    "descriptionKo": "전투 시작 시 성장 1, 블록 3 획득."
   },
   {
     "id": "eternal_seed",
@@ -330,11 +342,11 @@
     "nameKo": "정지된 순간",
     "class": "chronomancer",
     "rarity": "uncommon",
-    "trigger": "turnStart",
+    "trigger": "battleStart",
     "condition": null,
-    "effects": [{"type": "block", "value": 3}, {"type": "applyHaste", "value": 1}],
-    "description": "At the start of each turn, gain 3 Block and 1 Haste.",
-    "descriptionKo": "매 턴 시작 시 블록 3, 가속 1 획득."
+    "effects": [{"type": "block", "value": 5}, {"type": "applyHaste", "value": 2}],
+    "description": "At the start of battle, gain 5 Block and 2 Haste.",
+    "descriptionKo": "전투 시작 시 블록 5, 가속 2 획득."
   },
   {
     "id": "paradox_core",
@@ -344,9 +356,9 @@
     "rarity": "rare",
     "trigger": "battleStart",
     "condition": null,
-    "effects": [{"type": "draw", "value": 3}, {"type": "energy", "value": 1}, {"type": "applyHaste", "value": 1}],
-    "description": "At the start of battle, draw 3 cards, gain 1 Energy and 1 Haste.",
-    "descriptionKo": "전투 시작 시 카드 3장 드로우, 에너지 1, 가속 1 획득."
+    "effects": [{"type": "draw", "value": 3}, {"type": "energy", "value": 1}],
+    "description": "At the start of battle, draw 3 cards and gain 1 Energy.",
+    "descriptionKo": "전투 시작 시 카드 3장 드로우, 에너지 1 획득."
   },
   {
     "id": "time_dilation_orb",
@@ -354,11 +366,11 @@
     "nameKo": "시간 왜곡 구슬",
     "class": "chronomancer",
     "rarity": "rare",
-    "trigger": "turnStart",
+    "trigger": "battleStart",
     "condition": null,
-    "effects": [{"type": "energy", "value": 1}, {"type": "draw", "value": 1}],
-    "description": "At the start of each turn, gain 1 Energy and draw 1 card.",
-    "descriptionKo": "매 턴 시작 시 에너지 1, 카드 1장 드로우."
+    "effects": [{"type": "energy", "value": 2}, {"type": "draw", "value": 2}],
+    "description": "At the start of battle, gain 2 Energy and draw 2 cards.",
+    "descriptionKo": "전투 시작 시 에너지 2, 카드 2장 드로우."
   },
   {
     "id": "chronal_infinity",

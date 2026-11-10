@@ -141,14 +141,14 @@
     "cost": 0,
     "rarity": "rare",
     "targetType": "self",
-    "effects": [{"type": "energy", "value": 2}, {"type": "draw", "value": 3}],
-    "upgradeEffects": [{"type": "energy", "value": 2}, {"type": "draw", "value": 4}],
+    "effects": [{"type": "selfDamage", "value": 6}, {"type": "energy", "value": 2}, {"type": "draw", "value": 3}],
+    "upgradeEffects": [{"type": "selfDamage", "value": 6}, {"type": "energy", "value": 2}, {"type": "draw", "value": 4}],
     "keywords": [],
     "exhaust": true,
     "innate": false,
     "ethereal": false,
-    "description": "Gain 2 Energy. Draw 3 cards. Exhaust.",
-    "descriptionKo": "에너지 2. 카드 3장 드로우. 소멸.",
+    "description": "Lose 6 HP. Gain 2 Energy. Draw 3 cards. Exhaust.",
+    "descriptionKo": "HP 6 소모. 에너지 2. 카드 3장 드로우. 소멸.",
     "flavorText": "Power demands sacrifice."
   },
   {

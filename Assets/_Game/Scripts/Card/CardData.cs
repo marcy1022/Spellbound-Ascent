@@ -184,6 +184,9 @@ namespace SpellboundAscent.Card
                     case "applyRoot":
                         parts.Add(condPrefix + (ko ? $"속박 {v} 부여." : $"Apply {v} Root."));
                         break;
+                    case "applyHaste":
+                        parts.Add(condPrefix + (ko ? $"가속 {v} 획득." : $"Gain {v} Haste."));
+                        break;
                     case "multiHit": break;
                     case "costReduction": break;
                 }
@@ -296,6 +299,9 @@ namespace SpellboundAscent.Card
                         break;
                     case "applyRoot":
                         parts.Add($"{condPrefix}속박 {baseVal} 부여.");
+                        break;
+                    case "applyHaste":
+                        parts.Add($"{condPrefix}가속 {baseVal} 획득.");
                         break;
                     case "multiHit": break;
                     case "costReduction": break;

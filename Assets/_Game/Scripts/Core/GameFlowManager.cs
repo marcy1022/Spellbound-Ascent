@@ -67,12 +67,6 @@ namespace SpellboundAscent.Core
             }
             bgImg.raycastTarget = false;
 
-            var botGrad = MakeRect(root, "BotGrad",
-                new Vector2(0, 0), new Vector2(1, 0.40f), Vector2.zero, Vector2.zero);
-            var botGradImg = botGrad.gameObject.AddComponent<Image>();
-            botGradImg.color = new Color(0, 0, 0.01f, 0.55f);
-            botGradImg.raycastTarget = false;
-
             var logoSprite = SpriteManager.Load("Sprites/UI/logo_title");
             if (logoSprite != null)
             {
@@ -118,7 +112,7 @@ namespace SpellboundAscent.Core
             if (hasSave)
             {
                 var continueBtn = MakeRect(root, "Continue",
-                    new Vector2(0.10f, 0.28f), new Vector2(0.90f, 0.38f), Vector2.zero, Vector2.zero);
+                    new Vector2(0.10f, 0.24f), new Vector2(0.90f, 0.33f), Vector2.zero, Vector2.zero);
                 var contImg = continueBtn.gameObject.AddComponent<Image>();
                 var btnFrame = SpriteManager.Load("Sprites/UI/btn_frame");
                 if (btnFrame != null)
@@ -147,7 +141,7 @@ namespace SpellboundAscent.Core
                 contT.alignment = TextAlignmentOptions.Center;
 
                 var newBtn = MakeRect(root, "NewGame",
-                    new Vector2(0.2f, 0.18f), new Vector2(0.8f, 0.26f), Vector2.zero, Vector2.zero);
+                    new Vector2(0.2f, 0.15f), new Vector2(0.8f, 0.22f), Vector2.zero, Vector2.zero);
                 var newImg = newBtn.gameObject.AddComponent<Image>();
                 var panelSprite = SpriteManager.GetUI("panel_medium");
                 if (panelSprite != null)
@@ -176,12 +170,12 @@ namespace SpellboundAscent.Core
                     Vector2.zero, Vector2.one, 26, Color.white);
                 newT.alignment = TextAlignmentOptions.Center;
 
-                BuildCodexButtons(root);
+                BuildCodexButtons(root, 0.05f);
             }
             else
             {
                 var startBtn = MakeRect(root, "Start",
-                    new Vector2(0.10f, 0.28f), new Vector2(0.90f, 0.38f), Vector2.zero, Vector2.zero);
+                    new Vector2(0.10f, 0.14f), new Vector2(0.90f, 0.24f), Vector2.zero, Vector2.zero);
                 var startImg = startBtn.gameObject.AddComponent<Image>();
                 var btnFrame2 = SpriteManager.Load("Sprites/UI/btn_frame");
                 if (btnFrame2 != null)
@@ -209,11 +203,11 @@ namespace SpellboundAscent.Core
                     Vector2.zero, Vector2.one, 34, Color.white);
                 startT.alignment = TextAlignmentOptions.Center;
 
-                BuildCodexButtons(root);
+                BuildCodexButtons(root, 0.05f);
             }
         }
 
-        void BuildCodexButtons(RectTransform root)
+        void BuildCodexButtons(RectTransform root, float baseY = 0.06f)
         {
             var panelSpr = SpriteManager.GetUI("panel_medium");
 
@@ -235,7 +229,7 @@ namespace SpellboundAscent.Core
                 float x1 = x0 + 0.30f;
 
                 var btnRT = MakeRect(root, $"Codex_{i}",
-                    new Vector2(x0, 0.06f), new Vector2(x1, 0.13f), Vector2.zero, Vector2.zero);
+                    new Vector2(x0, baseY), new Vector2(x1, baseY + 0.07f), Vector2.zero, Vector2.zero);
                 var btnImg = btnRT.gameObject.AddComponent<Image>();
                 if (panelSpr != null)
                 {

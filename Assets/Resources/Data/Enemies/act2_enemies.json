@@ -159,7 +159,7 @@
     "nameKo": "리치 로드",
     "act": 2,
     "type": "boss",
-    "hp": {"min": 120, "max": 140},
+    "hp": {"min": 150, "max": 170},
     "moves": [
       {"id": "soul_drain", "intent": "attack", "effects": [{"type": "damage", "value": 14}, {"type": "heal", "value": 7}]},
       {"id": "dark_pact", "intent": "buff", "effects": [{"type": "applyStrength", "value": 3}, {"type": "block", "value": 10}]},
@@ -181,7 +181,7 @@
     "nameKo": "핏빛 여왕",
     "act": 2,
     "type": "boss",
-    "hp": {"min": 130, "max": 150},
+    "hp": {"min": 160, "max": 180},
     "moves": [
       {"id": "crimson_slash", "intent": "attack", "effects": [{"type": "damage", "value": 16}]},
       {"id": "blood_feast", "intent": "attack", "effects": [{"type": "damage", "value": 12}, {"type": "heal", "value": 8}]},

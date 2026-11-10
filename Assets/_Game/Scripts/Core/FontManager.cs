@@ -22,8 +22,12 @@ namespace SpellboundAscent.Core
         {
             try
             {
-                KoreanFontBold = TryCreateFont("Fonts/Pretendard-ExtraBold", "Pretendard-ExtraBold");
-                KoreanFont = TryCreateFont("Fonts/Pretendard-Bold", "Pretendard-Bold");
+                KoreanFontBold = TryCreateFont("Fonts/Pretendard-Black", "Pretendard-Black");
+                if (KoreanFontBold == null)
+                    KoreanFontBold = TryCreateFont("Fonts/Pretendard-ExtraBold", "Pretendard-ExtraBold");
+                KoreanFont = TryCreateFont("Fonts/Pretendard-ExtraBold", "Pretendard-ExtraBold");
+                if (KoreanFont == null)
+                    KoreanFont = TryCreateFont("Fonts/Pretendard-Bold", "Pretendard-Bold");
 
                 if (KoreanFont == null)
                     KoreanFont = KoreanFontBold;
@@ -72,8 +76,11 @@ namespace SpellboundAscent.Core
             if (targetFont == null) return;
 
             tmp.font = targetFont;
-            if (wantBold && KoreanFontBold != null)
-                tmp.fontStyle &= ~FontStyles.Bold;
+            if (tmp.outlineWidth == 0f)
+            {
+                tmp.outlineWidth = wantBold ? 0.15f : 0.1f;
+                tmp.outlineColor = new Color32(0, 0, 0, 160);
+            }
         }
     }
 }

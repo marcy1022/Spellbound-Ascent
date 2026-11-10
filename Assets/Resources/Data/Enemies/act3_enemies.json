@@ -69,7 +69,7 @@
     "hp": {"min": 50, "max": 60},
     "moves": [
       {"id": "spear_thrust", "intent": "attack", "effects": [{"type": "damage", "value": 16}]},
-      {"id": "tower_shield", "intent": "defend", "effects": [{"type": "block", "value": 20}]},
+      {"id": "tower_shield", "intent": "defend", "effects": [{"type": "block", "value": 16}]},
       {"id": "rallying_cry", "intent": "buff", "effects": [{"type": "applyStrength", "value": 3}]}
     ],
     "pattern": "sequence",
@@ -96,7 +96,7 @@
     "nameKo": "지옥 임프",
     "act": 3,
     "type": "normal",
-    "hp": {"min": 30, "max": 38},
+    "hp": {"min": 44, "max": 52},
     "moves": [
       {"id": "fire_bolt", "intent": "attack", "effects": [{"type": "damage", "value": 10}, {"type": "applyBurn", "value": 1}]},
       {"id": "imp_dance", "intent": "defend", "effects": [{"type": "block", "value": 8}]},
@@ -115,7 +115,7 @@
     "moves": [
       {"id": "doom_blade", "intent": "attack", "effects": [{"type": "damage", "value": 18}]},
       {"id": "dark_armor", "intent": "defend", "effects": [{"type": "block", "value": 16}, {"type": "applyStrength", "value": 1}]},
-      {"id": "execute", "intent": "attack", "effects": [{"type": "damage", "value": 24}]},
+      {"id": "execute", "intent": "attack", "effects": [{"type": "damage", "value": 20}]},
       {"id": "death_mark", "intent": "debuff", "effects": [{"type": "applyVulnerable", "value": 2}, {"type": "applyBurn", "value": 2}]}
     ],
     "pattern": "sequence",
@@ -159,7 +159,7 @@
     "nameKo": "대악마",
     "act": 3,
     "type": "boss",
-    "hp": {"min": 160, "max": 180},
+    "hp": {"min": 280, "max": 320},
     "moves": [
       {"id": "infernal_slash", "intent": "attack", "effects": [{"type": "damage", "value": 20}]},
       {"id": "demonic_aura", "intent": "buff", "effects": [{"type": "applyStrength", "value": 4}, {"type": "block", "value": 15}]},
@@ -181,12 +181,12 @@
     "nameKo": "공허의 군주",
     "act": 3,
     "type": "boss",
-    "hp": {"min": 175, "max": 200},
+    "hp": {"min": 300, "max": 350},
     "moves": [
       {"id": "void_blast", "intent": "attack", "effects": [{"type": "damage", "value": 18}]},
       {"id": "dimensional_rift", "intent": "debuff", "effects": [{"type": "applyWeak", "value": 2}, {"type": "applyVulnerable", "value": 2}]},
       {"id": "entropy_shield", "intent": "defend", "effects": [{"type": "block", "value": 22}, {"type": "applyStrength", "value": 3}]},
-      {"id": "annihilate", "intent": "attack", "effects": [{"type": "damage", "value": 8}, {"type": "multiHit", "value": 4}]},
+      {"id": "annihilate", "intent": "attack", "effects": [{"type": "damage", "value": 6}, {"type": "multiHit", "value": 4}]},
       {"id": "reality_tear", "intent": "buff", "effects": [{"type": "applyStrength", "value": 5}, {"type": "heal", "value": 10}]},
       {"id": "void_collapse", "intent": "special", "effects": [{"type": "purge", "value": 0}, {"type": "damage", "value": 15}]}
     ],

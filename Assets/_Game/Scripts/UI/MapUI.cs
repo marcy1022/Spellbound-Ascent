@@ -26,6 +26,36 @@ namespace SpellboundAscent.UI
         Dictionary<string, Image> _connectionLines = new();
         int _currentFloor;
         GameObject _deckViewPanel;
+        static Sprite _glowSprite;
+
+        static Sprite GetGlowSprite()
+        {
+            if (_glowSprite != null) return _glowSprite;
+            int size = 128;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            float center = size / 2f;
+            float radius = size / 2f;
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                    float norm = dist / radius;
+                    float alpha = 0f;
+                    if (norm < 0.45f)
+                        alpha = 0f;
+                    else if (norm < 1f)
+                        alpha = Mathf.SmoothStep(0f, 0.7f, (norm - 0.45f) / 0.25f)
+                              * Mathf.SmoothStep(0f, 1f, (1f - norm) / 0.3f);
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+                }
+            }
+            tex.Apply();
+            _glowSprite = Sprite.Create(tex, new Rect(0, 0, size, size),
+                new Vector2(0.5f, 0.5f), 100f);
+            _glowSprite.name = "NodeGlow";
+            return _glowSprite;
+        }
 
         struct NodeButton
         {
@@ -115,20 +145,19 @@ namespace SpellboundAscent.UI
                 bg.color = new Color(0.1f, 0.08f, 0.15f, 0.95f);
             }
 
-            MakeTMP(header, "Title", $"{run.currentAct}막 - 지도",
-                new Vector2(0.02f, 0.1f), new Vector2(0.5f, 0.9f), 36,
+            var titleT = MakeTMP(header, "Title", $"{run.currentAct}막 {run.currentFloor}/15층",
+                new Vector2(0.05f, 0.15f), new Vector2(0.38f, 0.85f), 28,
                 new Color(1, 0.85f, 0.2f));
+            titleT.alignment = TextAlignmentOptions.Center;
 
-            MakeTMP(header, "HP", $"HP: {run.currentHp}/{run.maxHp}",
-                new Vector2(0.5f, 0.5f), new Vector2(0.8f, 0.9f), 24, Color.white);
+            var hpT = MakeTMP(header, "HP", $"HP: {run.currentHp}/{run.maxHp}",
+                new Vector2(0.38f, 0.15f), new Vector2(0.65f, 0.85f), 24, Color.white);
+            hpT.alignment = TextAlignmentOptions.Center;
 
-            MakeTMP(header, "Gold", $"골드: {run.gold}",
-                new Vector2(0.5f, 0.1f), new Vector2(0.8f, 0.5f), 24,
+            var goldT = MakeTMP(header, "Gold", $"골드: {run.gold}",
+                new Vector2(0.63f, 0.15f), new Vector2(0.93f, 0.85f), 24,
                 new Color(1, 0.85f, 0.2f));
-
-            MakeTMP(header, "Floor", $"{run.currentFloor}/15층",
-                new Vector2(0.8f, 0.1f), new Vector2(0.98f, 0.9f), 22,
-                new Color(0.7f, 0.7f, 0.7f));
+            goldT.alignment = TextAlignmentOptions.Center;
 
             var deckBtn = MakeRect(_root, "DeckBtn",
                 new Vector2(0.02f, 0.003f), new Vector2(0.14f, 0.042f), Vector2.zero, Vector2.zero);
@@ -429,10 +458,11 @@ namespace SpellboundAscent.UI
 
                         var glow = MakeRect(nodeRT, "Glow",
                             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                            Vector2.zero, new Vector2(96, 96));
+                            Vector2.zero, new Vector2(108, 108));
                         glow.SetAsFirstSibling();
                         glowImg = glow.gameObject.AddComponent<Image>();
-                        glowImg.color = new Color(1, 0.85f, 0.2f, 0.4f);
+                        glowImg.sprite = GetGlowSprite();
+                        glowImg.color = new Color(1f, 0.85f, 0.2f, 0.45f);
                         glowImg.raycastTarget = false;
 
                         var trigger = nodeRT.gameObject.AddComponent<EventTrigger>();
@@ -639,8 +669,8 @@ namespace SpellboundAscent.UI
             {
                 if (nb.node == node && nb.glow != null)
                 {
-                    nb.glow.color = new Color(1, 0.85f, 0.2f, 0.7f);
-                    nb.glow.rectTransform.sizeDelta = new Vector2(104, 104);
+                    nb.glow.color = new Color(1f, 0.9f, 0.3f, 0.75f);
+                    nb.glow.rectTransform.sizeDelta = new Vector2(120, 120);
                     break;
                 }
             }
@@ -675,9 +705,24 @@ namespace SpellboundAscent.UI
             {
                 if (nb.node == node && nb.glow != null)
                 {
-                    nb.glow.color = new Color(1, 0.85f, 0.2f, 0.4f);
-                    nb.glow.rectTransform.sizeDelta = new Vector2(96, 96);
+                    nb.glow.color = new Color(1f, 0.85f, 0.2f, 0.45f);
+                    nb.glow.rectTransform.sizeDelta = new Vector2(108, 108);
                     break;
+                }
+            }
+        }
+
+        void Update()
+        {
+            float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * 2f);
+            foreach (var nb in _nodeButtons)
+            {
+                if (nb.glow != null && nb.node.available && !nb.node.visited)
+                {
+                    var c = nb.glow.color;
+                    nb.glow.color = new Color(c.r, c.g, c.b, 0.3f + 0.2f * pulse);
+                    float scale = 1f + 0.04f * pulse;
+                    nb.glow.rectTransform.localScale = new Vector3(scale, scale, 1f);
                 }
             }
         }

@@ -375,12 +375,12 @@
     "cost": 1,
     "rarity": "common",
     "targetType": "self",
-    "effects": [{"type": "block", "value": 10}],
-    "upgradeEffects": [{"type": "block", "value": 14}],
+    "effects": [{"type": "block", "value": 8}],
+    "upgradeEffects": [{"type": "block", "value": 12}],
     "keywords": [],
     "exhaust": false, "innate": false, "ethereal": false,
-    "description": "Gain 10 Block.",
-    "descriptionKo": "블록 10 획득.",
+    "description": "Gain 8 Block.",
+    "descriptionKo": "블록 8 획득.",
     "flavorText": "천년 나무의 껍질은 쇠보다 단단하다."
   },
   {
@@ -443,12 +443,12 @@
     "cost": 1,
     "rarity": "common",
     "targetType": "self",
-    "effects": [{"type": "heal", "value": 4}, {"type": "gainGrowth", "value": 1}],
-    "upgradeEffects": [{"type": "heal", "value": 6}, {"type": "gainGrowth", "value": 2}],
+    "effects": [{"type": "heal", "value": 5}, {"type": "gainGrowth", "value": 2}],
+    "upgradeEffects": [{"type": "heal", "value": 7}, {"type": "gainGrowth", "value": 3}],
     "keywords": ["growth"],
     "exhaust": false, "innate": false, "ethereal": false,
-    "description": "Heal 4 HP. Gain 1 Growth.",
-    "descriptionKo": "HP 4 회복. 성장 1 획득.",
+    "description": "Heal 5 HP. Gain 2 Growth.",
+    "descriptionKo": "HP 5 회복. 성장 2 획득.",
     "flavorText": "수액이 상처를 메운다."
   },
   {

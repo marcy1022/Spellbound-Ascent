@@ -477,12 +477,12 @@
     "cost": 1,
     "rarity": "common",
     "targetType": "self",
-    "effects": [{"type": "gainEmber", "value": 3}, {"type": "draw", "value": 1}],
-    "upgradeEffects": [{"type": "gainEmber", "value": 4}, {"type": "draw", "value": 2}],
+    "effects": [{"type": "gainEmber", "value": 4}, {"type": "draw", "value": 1}],
+    "upgradeEffects": [{"type": "gainEmber", "value": 5}, {"type": "draw", "value": 2}],
     "keywords": ["ember"],
     "exhaust": false, "innate": false, "ethereal": false,
-    "description": "Gain 3 Ember. Draw 1 card.",
-    "descriptionKo": "잔불 3 획득. 카드 1장 드로우.",
+    "description": "Gain 4 Ember. Draw 1 card.",
+    "descriptionKo": "잔불 4 획득. 카드 1장 드로우.",
     "flavorText": "불씨는 여전히 살아 있다."
   },
   {

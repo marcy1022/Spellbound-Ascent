@@ -65,7 +65,7 @@ namespace SpellboundAscent.UI
                     potBtn.targetGraphic = potRow.GetComponent<Image>();
                     var capturedPotion = reward.potion;
                     potBtn.onClick.AddListener(() => ShowPotionTooltip(capturedPotion));
-                    MakeTMP(potRow, "Hint", "ⓘ",
+                    MakeTMP(potRow, "Hint", "?",
                         new Vector2(0.9f, 0), new Vector2(1f, 1), 22,
                         new Color(0.5f, 0.8f, 0.5f)).alignment = TextAlignmentOptions.Center;
                     y -= 0.08f;
@@ -91,7 +91,7 @@ namespace SpellboundAscent.UI
                 relBtn.targetGraphic = relRow.GetComponent<Image>();
                 var capturedRelic = reward.relic;
                 relBtn.onClick.AddListener(() => ShowRelicTooltip(capturedRelic));
-                MakeTMP(relRow, "Hint", "ⓘ",
+                MakeTMP(relRow, "Hint", "?",
                     new Vector2(0.9f, 0), new Vector2(1f, 1), 22,
                     new Color(0.7f, 0.5f, 1f)).alignment = TextAlignmentOptions.Center;
                 y -= 0.08f;
@@ -118,7 +118,7 @@ namespace SpellboundAscent.UI
         void BuildCardChoices(float topY)
         {
             _cardChoicePanel = MakeRect(_root, "Cards",
-                new Vector2(0.02f, topY - 0.42f), new Vector2(0.98f, topY),
+                new Vector2(0.02f, topY - 0.32f), new Vector2(0.98f, topY),
                 Vector2.zero, Vector2.zero);
 
             int cnt = _cardChoices.Count;
@@ -593,7 +593,7 @@ namespace SpellboundAscent.UI
             var bg = MakeRect(_root, "Bg", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             var img = bg.gameObject.AddComponent<Image>();
             img.color = new Color(0.05f, 0.04f, 0.08f, 0.95f);
-            img.raycastTarget = false;
+            img.raycastTarget = true;
         }
 
         RectTransform MakeRewardRow(float y, string text, Color color)
